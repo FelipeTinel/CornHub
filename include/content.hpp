@@ -9,10 +9,12 @@ class Content {
 
     private:
 
+        static int next_id;
+
+        int id, year;
         std::string title;
         Type type;
         Genre genre;
-        int year;
         long views;
         float rating;
 
@@ -20,6 +22,7 @@ class Content {
 
         Content (std::string t, Type ty, Genre g, int y, long v, float r):
 
+            id(next_id++),
             title(t),
             type(ty),
             genre(g),
