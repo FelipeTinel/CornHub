@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_data_management.dir/tests/test_data_management.cpp.o CMakeFiles/test_data_management.dir/src/core/content.cpp.o CMakeFiles/test_data_management.dir/src/services/data_manager.cpp.o -o test_data_management 
