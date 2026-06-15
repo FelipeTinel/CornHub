@@ -27,9 +27,23 @@ void DataManager::write_content (Content & content) {
         write_file.close();
 
     } else {
-        std::cout << "Erro, arquivo não encontrado" << std::endl;
+        std::cout << "Erro, arquivo não encontrado." << std::endl;
     }
 
 }
 
+void DataManager::update_content (int id, Content & content) {
+
+    std::ofstream update_file(data_file);
+
+    if (update_file.is_open()) {
+
+        content_frame(update_file, content);
+        update_file.close();
+
+    } else {
+        std::cout << "Erro, não foi possível atualizar o conteúdo" << std::endl;
+    }
+
+}
 

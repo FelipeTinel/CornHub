@@ -24,7 +24,7 @@ class DataManager {
         DataManager (const std::string & data_file): data_file(data_file) {}
 
         void write_content(Content & content);
-        void update_content (int id);
+        void update_content (int id, Content & content);
         void remove_content(int id);
         Content * get_content (int id);
 
