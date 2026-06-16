@@ -8,16 +8,12 @@
 
 class DataManager {
 
-    private:
+    protected:
 
         std::string data_file;
 
         template <typename T> 
         void file_frame (std::ofstream & file, T info) { file << info << ";"; }
-        
-        void content_frame (std::ofstream & file, Content & content);
-        void profile_frame();
-
 
     public:
 
