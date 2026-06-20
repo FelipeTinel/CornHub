@@ -30,4 +30,11 @@ class Content {
         long get_views() const;
         float get_rating() const;
 
+        void set_title(std::string title);
+        void set_type(Type type);
+        void set_genre(Genre gere);
+        void set_year(int year);
+        void add_views(long views);
+        void set_rating(float rating);
+
 };

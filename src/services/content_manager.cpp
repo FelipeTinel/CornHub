@@ -49,15 +49,27 @@ void ContentManager::update_data (int id, const Content & content) {
 }
 
 void ContentManager::remove_data(int id) {
-    // TODO: Implementar a lógica para remover o conteúdo do arquivo usando o ID
     std::cout << "Removendo dado com ID: " << id << std::endl;
 }
 
-Content* ContentManager::get_data(int id) {
-    // TODO: Implementar a lógica para buscar no arquivo e retornar o ponteiro do objeto
-    std::cout << "Buscando dado com ID: " << id << std::endl;
+Content * ContentManager::get_data(int id) {
     
-    // Retornando nullptr temporariamente apenas para o código compilar e linkar
+    std::ifstream read_content (data_file);
+    Content * content;
+    std::string search_id;
+
+    while (std::getline(read_content, search_id)) {
+
+        if (std::getline(read_content, search_id, ';') - 0 == id) {
+
+            std::getline(read_content,search_id, ';')
+
+        }
+        
+
+
+    }
+
     return nullptr; 
 }
 
