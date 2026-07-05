@@ -10,8 +10,37 @@ void DoublyLinkedList::insert(const Content &content) {
     else head->previous = new_node;
     new_node->next = head;
     head = new_node;
+    current = head;
 
 }
 
 Content DoublyLinkedList::pop (const Content &content) {
+
+    Node * temp = tail;
+
+    while (temp != nullptr) {
+
+        if (content.get_id() == temp->content.get_id()) {
+
+            if (temp->previous != nullptr) temp->previous->next = temp->next;
+            else head = temp->next;
+
+            if (temp->next != nullptr) temp->next->previous = temp->previous;
+            else tail = temp->previous;
+
+            Content save_content = temp->content;
+            
+            if (current == temp) current = head;
+
+            delete temp;
+            return save_content;
+
+        }
+
+        temp = temp->previous;
+
+    }
+
+    return content;
+
 }
