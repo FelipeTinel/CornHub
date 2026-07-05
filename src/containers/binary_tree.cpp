@@ -37,19 +37,41 @@ void BinaryTree::insert(std::string info) {
                 // For this implementation, we will ignore duplicates
                 break;
             }
-
         }
     }
 }
 
 bool BinaryTree::search(std::string info) {
-
-    
-
+    NodeTree* current = root;
+    while(current != nullptr) {
+        if(info < current->content.info) {
+            current = current->left;
+        } else if(info > current->content.info) {
+            current = current->right;
+        } else {
+            return true; // Info found
+        }
+    }
+    return false; // Info not found
 }
 
 void BinaryTree::remove(std::string info) {
-
+    NodeTree* current = root;
+    NodeTree* parent = nullptr;
+    while(current != nullptr && current->content.info != info) {
+        parent = current;
+        if(info < current->content.info) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+        if(current == info) {
+            break; // lógica de remover info
+        }
+        if(current == nullptr) {
+            return; // Info not found
+        }
+    }
     
 
 }
