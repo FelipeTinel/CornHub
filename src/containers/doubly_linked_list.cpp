@@ -62,3 +62,11 @@ void DoublyLinkedList::go_previous() {
     else current = current->previous;
 
 }
+
+Content DoublyLinkedList::get_current() const {
+
+    if (current != nullptr) return current->content;
+    return Content();
+
+}
+
