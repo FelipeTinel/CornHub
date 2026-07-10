@@ -10,7 +10,7 @@ class UserManager : DataManager<User> {
 
     private:
 
-        void user_frame(std::ofstream & file, const User user);
+        void user_frame(std::ofstream & file, const User  & user);
 
     public: 
 
