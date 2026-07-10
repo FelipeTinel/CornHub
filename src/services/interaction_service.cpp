@@ -28,3 +28,15 @@ bool InteractionService::add_comment_to_content(Content& content, const std::str
     
     return false;
 }
+
+bool InteractionService::rate_content(Content & content, float new_note) {
+    
+    if (auth_service.is_logged_in()) {
+        
+        content.add_rating(new_note); 
+        return true;
+
+    }
+
+    return false;
+}
