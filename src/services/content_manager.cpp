@@ -26,17 +26,21 @@ void ContentManager::save_data (const DoublyLinkedList<Content> & list) {
 
     if (!file.is_open()) return;
 
-
+    Node<Content> * pointer = list.get_head();
     
+    while (pointer != nullptr) {
+
+        content_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
 
 }
 
-void ContentManager::load_data() {
+Node<Content> * ContentManager::load_data(DoublyLinkedList<Content> & list) {
     
-   
-}
-
-Node * ContentManager::get_list() {
-
+    
 
 }
