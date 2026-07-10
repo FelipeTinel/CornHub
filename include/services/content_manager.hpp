@@ -4,19 +4,18 @@
 
 #include "data_manager.hpp"
 #include "core/content.hpp"
+#include "containers/doubly_linked_list.hpp"
 
 class ContentManager : public DataManager<Content> {
 
     private:
 
         void content_frame (std::ofstream & file, const Content & content);
-
     public:
 
-        explicit ContentManager (const std::string & data_file) : DataManager(data_file) {}
+        explicit ContentManager (const std::string & data_file) : DataManager<Content>(data_file) {}
 
-        void save_data(const Content & content) override;
-        Content * load_data(int id) override;
-
+        void save_data(DoublyLinkedList & list) override;
+        void load_data(DoublyLinkedList & list) override;
 
 };

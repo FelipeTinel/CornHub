@@ -4,6 +4,9 @@
 #include <fstream>
 #include <string>
 
+#include "containers/doubly_linked_list.hpp"
+
+class DoublyLinkedList;
 template <typename T>
 class DataManager {
 
@@ -18,8 +21,8 @@ class DataManager {
 
         explicit DataManager (const std::string & data_file): data_file(data_file) {}
 
-        virtual void save_data(const T & data) = 0;
-        virtual T * load_data(int id) = 0;
+        virtual void save_data(DoublyLinkedList & list) = 0;
+        virtual void load_data(DoublyLinkedList & list) = 0;
 
         virtual ~ DataManager() = default;
 
