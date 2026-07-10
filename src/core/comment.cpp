@@ -18,4 +18,4 @@ int Comment::get_content_id () const { return content_id; }
 int Comment::get_user_id () const { return user_id; }
 std::string Comment::get_comment () const { return text; };
         
-void Comment::set_comment (std::string new_comment) { text = new_comment; };
+void Comment::set_comment (std::string new_comment) { text = new_comment; }
