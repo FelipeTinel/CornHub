@@ -3,6 +3,7 @@
 #include "node.hpp"
 #include "content.hpp"
 
+template <typename T>
 class DoublyLinkedList {
 
     Node * head, * tail, * current;
@@ -14,13 +15,11 @@ class DoublyLinkedList {
     
         ~ DoublyLinkedList ();
     
-        void insert (const Content &content);
-        Content pop (const Content &content);
-        
-        void go_next ();
-        void go_previous ();
-        
-        Content get_current () const;
-        Content remove_current ();
+        void insert (const T &info);
+        T pop (const T &info);
+
+        Node<T> * get_head() const;
+        Node<T> * get_tail() const;
+
 
 };

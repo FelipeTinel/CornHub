@@ -51,11 +51,17 @@ Content DoublyLinkedList::pop (const Content &content) {
 
 }
 
+void DoublyLinkedList::go_start () {
+
+    while (current != tail) go_next(); 
+
+}
+
 void DoublyLinkedList::go_next () {
 
     if (current == nullptr) return;
 
-    if (current->next == nullptr) current = head;
+    if (current->next == nullptr) return;
     else current = current->next;
 
 }

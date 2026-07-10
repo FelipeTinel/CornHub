@@ -21,7 +21,13 @@ void ContentManager::content_frame (std::ofstream & file, const Content & conten
 
 void ContentManager::save_data () {
 
-    
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    main_list.go_start();
+
+    while () content_frame (file, content);
 
 }
 
@@ -30,3 +36,7 @@ void ContentManager::load_data() {
    
 }
 
+Node * ContentManager::get_list() {
+
+    
+}

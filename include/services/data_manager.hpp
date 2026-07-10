@@ -5,14 +5,13 @@
 #include <string>
 
 #include "containers/doubly_linked_list.hpp"
-
+#include "containers/node.hpp"
 template<typename T>
 class DataManager {
 
     protected:
 
         std::string data_file;
-        DoublyLinkedList main_list;
  
         template <typename U>
         void file_frame (std::ofstream & file, U info) { file << info << ";"; }
@@ -24,7 +23,7 @@ class DataManager {
         virtual void save_data() = 0;
         virtual void load_data() = 0;
 
-        virtual DoublyLinkedList get_list() { return main_list; }
+        virtual Node * get_list() = 0;
 
         virtual ~ DataManager() = default;
 

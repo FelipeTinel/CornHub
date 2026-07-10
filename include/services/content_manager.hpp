@@ -19,4 +19,6 @@ class ContentManager : public DataManager<Content> {
         void save_data() override;
         void load_data() override;
 
+        Node * get_list () override;
+
 };
