@@ -19,6 +19,6 @@ class ContentManager : public DataManager<Content> {
         ContentManager (const std::string & data_file) : DataManager<Content>(data_file) {}
 
         void save_data(const DoublyLinkedList<Content> & list) override;
-        Node<Content> * load_data() override;
-        
+        Node<Content> * load_data(DoublyLinkedList<T> & list) override;
+
 };
