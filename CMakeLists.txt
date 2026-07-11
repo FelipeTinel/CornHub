@@ -7,18 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 add_executable(
-    test_data_management
-    tests/test_data_management.cpp
-    src/core/content.cpp
+    test_content_save
+    tests/test_content_save.cpp
+    src/services/user_manager.cpp
+    src/services/comment_manager.cpp
     src/services/content_manager.cpp
     src/containers/binary_tree.cpp
-    )
-
-add_executable(
-    test_get_data
-    tests/test_get_data.cpp
+    src/core/user.cpp
+    src/core/comment.cpp
     src/core/content.cpp
-    src/services/content_manager.cpp
     src/containers/binary_tree.cpp
     )
 
@@ -29,4 +26,4 @@ add_executable(
     src/services/content_manager.cpp
     src/containers/binary_tree.cpp
     src/core/score_calculator.cpp
-    )
+)
