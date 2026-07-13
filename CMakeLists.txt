@@ -10,6 +10,9 @@ find_package(glfw3 REQUIRED)
 
 set(IMGUI_DIR "thirdparty/imgui")
 
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+
 set(IMGUI_SOURCES
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_demo.cpp
@@ -20,10 +23,7 @@ set(IMGUI_SOURCES
     ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-include_directories(include)
-
-add_executable(
-    test_content_save
+add_executable(ECV
     tests/test_content_save.cpp
     src/services/user_manager.cpp
     src/services/comment_manager.cpp
@@ -31,16 +31,16 @@ add_executable(
     src/core/user.cpp
     src/core/comment.cpp
     src/core/content.cpp
+    ${IMGUI_SOURCES}
 )
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${IMGUI_SOURCES})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_include_directories(ECV PRIVATE
+    include
     ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(ECV PRIVATE
     glfw
     OpenGL::GL
 )
