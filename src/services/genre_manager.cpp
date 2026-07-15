@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include "containers/doubly_linked_list.hpp"
-#include "services/Genre_manager.hpp"
+#include "services/genre_manager.hpp"
 #include "core/genre.hpp"
 
 void GenreManager::Genre_frame (std::ofstream & file, const Genre & Genre) {

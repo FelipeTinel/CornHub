@@ -10,6 +10,7 @@
 struct NodeTree {
 
     Question * question = nullptr;
+    DoublyLinkedList<std::string> node_prio_list;
 
     NodeTree * no = nullptr;
     NodeTree * yes = nullptr;

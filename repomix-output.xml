@@ -61,6 +61,7 @@ include/
     content_list.hpp
     content_manager.hpp
     data_manager.hpp
+    genre_manager.hpp
     interaction_service.hpp
     user_manager.hpp
 src/
@@ -86,6 +87,7 @@ tests/
     content_test.txt
     genre_test.txt
     user_test.txt
+  test_binary_tree.cpp
   test_content_save.cpp
   test_recommendation.cpp
 .gitignore
@@ -96,88 +98,31 @@ README.md
 <files>
 This section contains the contents of the repository's files.
 
-<file path="src/services/genre_manager.cpp">
+<file path="include/services/genre_manager.hpp">
+#pragma once
+
 #include <iostream>
-#include <string>
 #include <fstream>
-#include <sstream>
+#include <string>
 
-#include "containers/doubly_linked_list.hpp"
-#include "services/Genre_manager.hpp"
+#include "data_manager.hpp"
 #include "core/genre.hpp"
+#include "containers/doubly_linked_list.hpp"
 
-void GenreManager::Genre_frame (std::ofstream & file, const Genre & Genre) {
+class GenreManager : public DataManager<Genre> {
 
-    file_frame(file, Genre.get_id());
-    file_frame(file, Genre.get_name());
-    file_frame(file, static_cast<int>(Genre.get_genre()));
+    private:
 
-    file << "\n";
+        void Genre_frame(std::ofstream & file, const Genre & genre);
 
-}
+    public: 
 
-void GenreManager::save_data (const DoublyLinkedList<Genre> & list) {
+        GenreManager(const std::string & data_file) : DataManager<Genre>(data_file) {}
 
-    std::ofstream file(data_file);
+        void save_data(const DoublyLinkedList<Genre> & list) override;
+        void load_data(DoublyLinkedList<Genre> & list) override;
 
-    if (!file.is_open()) return;
-
-    Node<Genre> * pointer = list.get_head();
-    
-    while (pointer != nullptr) {
-
-        Genre_frame(file, pointer->info);
-        pointer = pointer->next;
-
-    }
-
-    file.close();
-
-}
-
-void GenreManager::load_data(DoublyLinkedList<Genre> & list) {
-    
-    std::ifstream file(data_file);
-    if (!file.is_open()) {
-        std::cout << "Arquivo não encontrado." << std::endl;
-        return;
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.empty()) continue;
-
-        std::stringstream ss(line);
-        std::string field;
-
-        std::getline(ss, field, ';');
-        int id = std::stoi(field);
-
-        std::string name;
-        std::getline(ss, name, ';');
-
-        std::getline(ss, field, ';');
-        Genre genre = static_cast<Genre>(std::stoi(field));
-
-        std::getline(ss, field, '{');
-        DoublyLinkedList<std::string> subgenres_list;
-        while(std::getline(ss, field, ',') && field != '}'){
-            
-            subgenres_list.insert(field);
-        }
-
-        Genre Genre(id, name, subgenres_list);
-        list.insert(Genre);
-    }
-
-    file.close();
-}
-</file>
-
-<file path="tests/data/genre_test.txt">
-3;Romance;{Época,Famliar,Sensual,}
-2;Terror;{Suspense,Slasher,Israelita,}
-1;Ação;{Luta,Veículos,Patriotismo,}
+};
 </file>
 
 <file path="data/contents_data.txt">
@@ -212,41 +157,6 @@ class Comment {
         std::string get_comment () const;
         
         void set_comment (std::string new_comment);
-
-};
-</file>
-
-<file path="include/core/question.hpp">
-#pragma once
-
-#include <iostream>
-#include <string>
-
-#include "genre.hpp"
-#include "type.hpp"
-
-class Question {
-
-    private:
-
-        bool is_genre_question = true;
-        std::string question_text;
-        Genre genre;
-        std::string subgenre;
-
-        
-    public:
-
-        Question(const Genre& genre, bool is_genre_question);
-        Question(const std::string& subgenre, bool is_genre_question);
-
-        std::string get_question() const;
-        Genre get_genre() const;
-
-
-        void set_bool(bool is_genre_question);
-        void set_question(std::string question);
-        void set_genre(const Genre& genre);
 
 };
 </file>
@@ -333,87 +243,6 @@ class AuthService {
 };
 </file>
 
-<file path="src/core/genre.cpp">
-#include <iostream>
-
-#include "core/genre.hpp"
-
-// Initialize the static member variable genres_list
-DoublyLinkedList<Genre> Genre::genres_list;
-
-Genre::Genre() : id(0), name(""), subgenres_list() {}
-
-Genre::Genre(int i, std::string n, DoublyLinkedList<std::string> sg_list) : id(i), name(n), subgenres_list(sg_list) {
-    addGenre(*this); // Adiciona o gênero à lista de gêneros
-}
-
-void Genre::addSubgenre(const std::string& s) { 
-    subgenres_list.insert(s); 
-} 
-
-void Genre::addGenre(const Genre& g) { 
-    genres_list.insert(g); 
-}
-
-int Genre::get_id() const { 
-    return id; 
-}
-
-std::string Genre::get_name() const { 
-    return name; 
-}
-
-Genre::Value Genre::get_genre() const { 
-    return static_cast<Genre::Value>(id); 
-}
-
-DoublyLinkedList<std::string> Genre::get_subgenres() const { 
-    return subgenres_list; 
-}
-
-DoublyLinkedList<Genre>& Genre::get_genres_list() { 
-    return genres_list; 
-}
-</file>
-
-<file path="src/core/question.cpp">
-#include <iostream>
-
-#include "core/question.hpp"
-
-Question::Question(const Genre& g, bool is_genre) : is_genre_question(is_genre), genre(g) {
-    if (is_genre_question) {
-        question_text = "Do you like " + genre.get_name() + "?";
-    }
-}
-
-Question::Question(const std::string& sub, bool is_genre) : is_genre_question(is_genre), subgenre(sub) {
-    if (!is_genre_question) {
-        question_text = "Do you like " + subgenre + "?";
-    }
-}
-
-std::string Question::get_question() const {
-    return question_text;
-}
-
-Genre Question::get_genre() const {
-    return genre;
-}
-
-void Question::set_bool(bool is_genre) {
-    is_genre_question = is_genre;
-}
-
-void Question::set_question(std::string q) {
-    question_text = q;
-}
-
-void Question::set_genre(const Genre& g) {
-    genre = g;
-}
-</file>
-
 <file path="src/services/auth_service.cpp">
 #include <iostream>
 
@@ -463,15 +292,160 @@ bool AuthService::login_user(const std::string & username, const std::string & p
 void AuthService::logout() { current_user = nullptr; }
 </file>
 
+<file path="src/services/genre_manager.cpp">
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "services/genre_manager.hpp"
+#include "core/genre.hpp"
+
+void GenreManager::Genre_frame (std::ofstream & file, const Genre & Genre) {
+
+    file_frame(file, Genre.get_id());
+    file_frame(file, Genre.get_name());
+    file_frame(file, static_cast<int>(Genre.get_genre()));
+
+    file << "\n";
+
+}
+
+void GenreManager::save_data (const DoublyLinkedList<Genre> & list) {
+
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    Node<Genre> * pointer = list.get_head();
+    
+    while (pointer != nullptr) {
+
+        Genre_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
+
+}
+
+void GenreManager::load_data(DoublyLinkedList<Genre> & list) {
+    
+    std::ifstream file(data_file);
+    if (!file.is_open()) {
+        std::cout << "Arquivo não encontrado." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string field;
+
+        std::getline(ss, field, ';');
+        int id = std::stoi(field);
+
+        std::string name;
+        std::getline(ss, name, ';');
+
+        std::getline(ss, field, ';');
+        Genre genre = static_cast<Genre>(std::stoi(field));
+
+        std::getline(ss, field, '{');
+        DoublyLinkedList<std::string> subgenres_list;
+        while(std::getline(ss, field, ',') && field != '}'){
+            
+            subgenres_list.insert(field);
+        }
+
+        Genre Genre(id, name, subgenres_list);
+        list.insert(Genre);
+    }
+
+    file.close();
+}
+</file>
+
 <file path="tests/data/comment_test.txt">
 2;2;2;Aaaaaaiiii eu amo minecraft o filmeee;
 1;1;1;Cara que filme bosta;
+</file>
+
+<file path="tests/data/genre_test.txt">
+3;Romance;{Época,Famliar,Sensual,}
+2;Terror;{Suspense,Slasher,Israelita,}
+1;Ação;{Luta,Veículos,Patriotismo,}
 </file>
 
 <file path="tests/data/user_test.txt">
 3;Janderson;789;
 2;Marcelo;456;
 1;Felipe;123;
+</file>
+
+<file path="tests/test_binary_tree.cpp">
+#include <iostream>
+#include <cassert>
+#include "containers/binary_tree.hpp"
+#include "core/genre.hpp"
+#include "containers/doubly_linked_list.hpp"
+
+int count_nodes(NodeTree* node) {
+    if (node == nullptr) return 0;
+    return 1 + count_nodes(node->yes) + count_nodes(node->no);
+}
+
+int count_questions(NodeTree* node) {
+    if (node == nullptr) return 0;
+    int count = (node->question != nullptr) ? 1 : 0;
+    return count + count_questions(node->yes) + count_questions(node->no);
+}
+
+int main() {
+    std::cout << "=== Running BinaryTree verification tests ===" << std::endl;
+
+    // Create subgenres for Action
+    DoublyLinkedList<std::string> action_subs;
+    action_subs.insert("Superhero");
+    action_subs.insert("Sci-Fi Action");
+
+    Genre action_genre(1, "Action", action_subs);
+
+    // Create subgenres for Comedy
+    DoublyLinkedList<std::string> comedy_subs;
+    comedy_subs.insert("Romantic Comedy");
+    comedy_subs.insert("Sitcom");
+
+    Genre comedy_genre(2, "Comedy", comedy_subs);
+
+    DoublyLinkedList<Genre> list;
+    list.insert(comedy_genre);
+    list.insert(action_genre);
+
+    std::cout << "List size: " << list.size() << std::endl;
+
+    BinaryTree tree;
+    tree.build_tree(list);
+
+    NodeTree* root = tree.get_root();
+    assert(root != nullptr);
+
+    std::cout << "Tree successfully built." << std::endl;
+
+    int total_nodes = count_nodes(root);
+    int total_questions = count_questions(root);
+    std::cout << "Total nodes: " << total_nodes << std::endl;
+    std::cout << "Total questions: " << total_questions << std::endl;
+
+    std::cout << "Root question: " << root->question->get_question() << std::endl;
+
+    std::cout << "=== BinaryTree verification tests completed successfully ===" << std::endl;
+    return 0;
+}
 </file>
 
 <file path="tests/test_recommendation.cpp">
@@ -570,6 +544,36 @@ int main() {
 }
 </file>
 
+<file path="include/core/question.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+#include "genre.hpp"
+#include "containers/doubly_linked_list.hpp"
+
+class Question {
+    private:
+        bool is_genre_question;
+        std::string question_text;
+        Genre genre; // Usado apenas se is_genre_question for true
+
+    public:
+        // Construtor para perguntas de Gênero (ex: "Você gosta de Ação?")
+        Question(const Genre& g, bool is_genre);
+
+        // Construtor para comparação de Subgêneros (ex: "Você prefere X ou Y?")
+        Question(const std::string& sub1, const std::string& sub2, bool is_genre);
+
+        std::string get_question() const;
+        Genre get_genre() const;
+
+        void set_bool(bool is_genre);
+        void set_question(std::string question);
+        void set_genre(const Genre& g);
+};
+</file>
+
 <file path="include/services/comment_manager.hpp">
 #pragma once
 
@@ -596,32 +600,88 @@ class CommentManager : DataManager<Comment> {
 };
 </file>
 
-<file path="include/services/content_list.hpp">
-#pragma once
-
+<file path="src/core/genre.cpp">
 #include <iostream>
 
-#include "containers/doubly_linked_list.hpp"
-#include "core/content.hpp"
+#include "core/genre.hpp"
 
-class ContentList {
+// Initialize the static member variable genres_list
+DoublyLinkedList<Genre> Genre::genres_list;
 
-    private:
+Genre::Genre() : id(0), name(""), subgenres_list() {}
 
-        DoublyLinkedList<Content> main_list, recomendation_list, rating_list, popula_list, launch_list;
+Genre::Genre(int i, std::string n, DoublyLinkedList<std::string> sg_list) : id(i), name(n), subgenres_list(sg_list) {
+    addGenre(*this); // Adiciona o gênero à lista de gêneros
+}
 
-    public:
+void Genre::addSubgenre(const std::string& s) { 
+    subgenres_list.insert(s); 
+} 
 
-        ContentList () {}
-        ~ ContentList () {}
+void Genre::addGenre(const Genre& g) { 
+    genres_list.insert(g); 
+}
 
-        void create_main_list(Node<Content>* head);
-        void create_recomendation_list();
-        void create_rating_list();
-        void create_popular_list();
-        void create_launch_list ();
+int Genre::get_id() const { 
+    return id; 
+}
 
-};
+std::string Genre::get_name() const { 
+    return name; 
+}
+
+Genre::Value Genre::get_genre() const { 
+    return static_cast<Genre::Value>(id); 
+}
+
+DoublyLinkedList<std::string> Genre::get_subgenres() { 
+    return subgenres_list; 
+}
+
+DoublyLinkedList<Genre>& Genre::get_genres_list() { 
+    return genres_list; 
+}
+</file>
+
+<file path="src/core/question.cpp">
+#include "core/question.hpp"
+
+// Construtor para perguntas de Gênero
+Question::Question(const Genre& g, bool is_genre) 
+    : is_genre_question(is_genre), genre(g) {
+    if (is_genre_question) {
+        question_text = "Do you like " + genre.get_name() + "?";
+    }
+}
+
+// Construtor para comparação de Subgêneros
+// Agora aceita duas strings para a pergunta de "prefere um ou outro"
+Question::Question(const std::string& sub1, const std::string& sub2, bool is_genre) 
+    : is_genre_question(is_genre) {
+    if (!is_genre_question) {
+        question_text = "Do you prefer " + sub1 + " or " + sub2 + "?";
+    }
+}
+
+std::string Question::get_question() const {
+    return question_text;
+}
+
+Genre Question::get_genre() const {
+    return genre;
+}
+
+void Question::set_bool(bool is_genre) {
+    is_genre_question = is_genre;
+}
+
+void Question::set_question(std::string q) {
+    question_text = q;
+}
+
+void Question::set_genre(const Genre& g) {
+    genre = g;
+}
 </file>
 
 <file path="src/core/user.cpp">
@@ -839,10 +899,6 @@ void UserManager::load_data (DoublyLinkedList<User> & list) {
 }
 </file>
 
-<file path="src/main.cpp">
-
-</file>
-
 <file path="tests/test_content_save.cpp">
 #include <iostream>
 
@@ -903,86 +959,31 @@ int main () {
 /build/*
 </file>
 
-<file path="include/containers/node_tree.hpp">
+<file path="include/services/content_list.hpp">
 #pragma once
 
 #include <iostream>
 
-#include <string>
-
-#include "core/content.hpp"
-#include "core/question.hpp"
-
-struct NodeTree {
-
-    Question * question;
-
-    NodeTree * no, * yes;
-    
-    NodeTree() :  question(nullptr), no(nullptr), yes(nullptr) {}
-
-};
-
-
-/*
-if (no){
-    código de priorização de vetor roda
-    vetor aponta pra proxima pergunta
-}
-
-as perguntas são feitas de forma pre processadas, 
-
-a arvore é instanciada no construtor, 
-criando as perguntas com base nas listas de generos e subgeneros, 
-e as perguntas são feitas de forma pre processadas,
-
-para testar a gente pode criar os objetos de genero da main 
-e criar um metodo de adicionar subgenero na lista deles,
-adicionando subgeneros e generos, e depois instanciando a arvore,
-e depois testando a busca de perguntas na arvore,
-
-e vão jogar o proximo nó da arvore,
-*/
-</file>
-
-<file path="include/core/genre.hpp">
-#pragma once
-
-#include <iostream>
-#include <string>
 #include "containers/doubly_linked_list.hpp"
+#include "core/content.hpp"
 
-class Genre {
-    public:
-        enum Value {
-            ACTION = 1,
-            COMEDY = 2,
-            ROMANCE = 3,
-            HORROR = 4,
-            SUSPENSE = 5,
-            DRAMA = 6,
-            SCIENCE_FICTION = 7,
-            SLICE_OF_LIFE = 8
-        };
+class ContentList {
 
     private:
-        int id;
-        std::string name;
-        DoublyLinkedList<std::string> subgenres_list;
-        static DoublyLinkedList<Genre> genres_list;
+
+        DoublyLinkedList<Content> main_list, recomendation_list, rating_list, popula_list, launch_list;
 
     public:
-        Genre();
-        Genre(int id, std::string name, DoublyLinkedList<std::string> subgenres_list);
 
-        void addSubgenre(const std::string& s);
-        static void addGenre(const Genre& g);
+        ContentList () {}
+        ~ ContentList () {}
 
-        int get_id() const;
-        std::string get_name() const;
-        Value get_genre() const;
-        DoublyLinkedList<std::string> get_subgenres() const;
-        static DoublyLinkedList<Genre>& get_genres_list();
+        void create_main_list(Node<Content>* head);
+        void create_recomendation_list();
+        void create_rating_list();
+        void create_popular_list();
+        void create_launch_list ();
+
 };
 </file>
 
@@ -1039,6 +1040,10 @@ class UserManager : DataManager<User> {
 };
 </file>
 
+<file path="src/main.cpp">
+
+</file>
+
 <file path="README.md">
 # ECV-ENTRETENIMENTO-CERTO-E-VIVO
 Trabalho final de Estruturas de Dados 1 UNEB 2026.1
@@ -1077,48 +1082,48 @@ cmake --build .
 ### Fim de papo.
 </file>
 
-<file path="include/containers/binary_tree.hpp">
+<file path="include/containers/node_tree.hpp">
 #pragma once
 
 #include <iostream>
+
 #include <string>
-#include <vector>
 
-#include "node_tree.hpp"
+#include "core/content.hpp"
+#include "core/question.hpp"
 
-#include "core/genre.hpp"
-#include "core/type.hpp"
+struct NodeTree {
 
-class BinaryTree {
+    Question * question = nullptr;
+    DoublyLinkedList<std::string> node_prio_list;
 
-    private:
-
-        NodeTree * root;
-
-        NodeTree* build_genre_nodes(Node<Genre>* current);
-        NodeTree* build_subgenre_nodes(Node<std::string>* currentSub);
-
-        void destroy(NodeTree* node) {
-            if (node != nullptr) {
-                destroy(node->no);
-                destroy(node->yes);
-                delete node;
-            }
-        }
-        
-
-    public:
-
-        BinaryTree (): root(nullptr) {}
-        ~BinaryTree() { destroy(root); }
-
-        void build_tree(DoublyLinkedList<Genre>& genreList); // Inicia a construção
-
-
-        NodeTree* get_root() const { return root; }
-        void set_root(NodeTree* new_root) { root = new_root; }
+    NodeTree * no = nullptr;
+    NodeTree * yes = nullptr;
+    
+    NodeTree() :  question(nullptr), no(nullptr), yes(nullptr) {}
 
 };
+
+
+/*
+if (no){
+    código de priorização de vetor roda
+    vetor aponta pra proxima pergunta
+}
+
+as perguntas são feitas de forma pre processadas, 
+
+a arvore é instanciada no construtor, 
+criando as perguntas com base nas listas de generos e subgeneros, 
+e as perguntas são feitas de forma pre processadas,
+
+para testar a gente pode criar os objetos de genero da main 
+e criar um metodo de adicionar subgenero na lista deles,
+adicionando subgeneros e generos, e depois instanciando a arvore,
+e depois testando a busca de perguntas na arvore,
+
+e vão jogar o proximo nó da arvore,
+*/
 </file>
 
 <file path="include/containers/node.hpp">
@@ -1133,6 +1138,47 @@ struct Node {
     Node * next, * previous;
 
     Node(const T &_info): info(_info), next(nullptr), previous(nullptr) {}
+};
+</file>
+
+<file path="include/core/genre.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+#include "containers/doubly_linked_list.hpp"
+
+class Genre {
+    public:
+        enum Value {
+            ACTION = 1,
+            COMEDY = 2,
+            ROMANCE = 3,
+            HORROR = 4,
+            SUSPENSE = 5,
+            DRAMA = 6,
+            SCIENCE_FICTION = 7,
+            SLICE_OF_LIFE = 8
+        };
+
+    private:
+        int id;
+        std::string name;
+        DoublyLinkedList<std::string> subgenres_list;
+        static DoublyLinkedList<Genre> genres_list;
+
+    public:
+        Genre();
+        Genre(int id, std::string name, DoublyLinkedList<std::string> subgenres_list);
+
+        void addSubgenre(const std::string& s);
+        static void addGenre(const Genre& g);
+
+        int get_id() const;
+        std::string get_name() const;
+        Value get_genre() const;
+        DoublyLinkedList<std::string> get_subgenres();
+        static DoublyLinkedList<Genre>& get_genres_list();
 };
 </file>
 
@@ -1165,14 +1211,41 @@ void Comment::set_comment (std::string new_comment) { text = new_comment; }
 1;Interstellar;0;6;2014;950000;4.9;
 </file>
 
-<file path="src/containers/binary_tree.cpp">
-#include <iostream>
-#include <string>
-
-#include "containers/binary_tree.hpp"
+<file path="include/containers/binary_tree.hpp">
+#pragma once
 #include "core/question.hpp"
-#include "core/genre.hpp"
+#include "containers/doubly_linked_list.hpp"
 
+struct NodeTree {
+    Question* question;
+    NodeTree* yes;
+    NodeTree* no;
+    DoublyLinkedList<std::string> result_list; // Armazena o resultado final na folha
+};
+
+class BinaryTree {
+    private:
+        NodeTree* root;
+        std::string get_element_at(DoublyLinkedList<std::string>& list, int index);
+        NodeTree* create_result_node(DoublyLinkedList<std::string>& finalList); // Atualizado para receber a lista
+
+    public:
+        BinaryTree();
+        ~BinaryTree();
+        void build_tree(DoublyLinkedList<Genre>& genreList);
+        NodeTree* build_genre_nodes(Node<Genre>* current);
+        NodeTree* build_subgenre_nodes(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority);
+        NodeTree* process_yes_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority);
+        NodeTree* process_no_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority);
+        NodeTree* navigate_yes(NodeTree* current); // navega pra no
+        NodeTree* navigate_no(NodeTree* current); // navega pra sim
+
+        NodeTree* get_root() const { return root; } // pega a raiz da arvore
+};
+</file>
+
+<file path="src/containers/binary_tree.cpp">
+#include "containers/binary_tree.hpp"
 
 void BinaryTree::build_tree(DoublyLinkedList<Genre>& genreList) {
     root = build_genre_nodes(genreList.get_head());
@@ -1180,36 +1253,79 @@ void BinaryTree::build_tree(DoublyLinkedList<Genre>& genreList) {
 
 NodeTree* BinaryTree::build_genre_nodes(Node<Genre>* current) {
     if (current == nullptr) return nullptr;
-
     NodeTree* node = new NodeTree();
-    
-    // Cria a pergunta de gênero
+    DoublyLinkedList<std::string> priorityList;
     node->question = new Question(current->info, true);
-    
-    // Caminho YES: Aprofunda nos subgêneros deste gênero
-    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head());
-    
-    // Caminho NO: Vai para o próximo gênero da lista principal
+    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head(), priorityList, 0);
     node->no = build_genre_nodes(current->next);
-
     return node;
 }
 
-NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub) {
-    if (currentSub == nullptr) return nullptr;
+NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    if (currentSub == nullptr) {
+        return create_result_node(priorityList); // Passa a lista acumulada para a folha
+    }
 
     NodeTree* node = new NodeTree();
-    
-    // Cria a pergunta de subgênero
-    // Nota: você pode precisar de um construtor que aceite apenas string/subgênero
-    node->question = new Question(currentSub->info, false); 
-    
-    // O próximo subgênero continua a lista de perguntas
-    // Em uma lista de subgêneros, o 'no' ou 'yes' pode seguir a lógica de priorização
-    node->yes = build_subgenre_nodes(currentSub->next); 
-    node->no = build_subgenre_nodes(currentSub->next);
+    if (priorityList.get_head() == nullptr) {
+        node->question = new Question(currentSub->info, false);
+    } else {
+        std::string compareTarget = get_element_at(priorityList, contPriority);
+        node->question = new Question(compareTarget, currentSub->info, false);
+    }
 
+    node->yes = process_yes_branch(currentSub, priorityList, contPriority);
+    node->no = process_no_branch(currentSub, priorityList, contPriority);
     return node;
+}
+
+NodeTree* BinaryTree::process_yes_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    DoublyLinkedList<std::string> newList = priorityList; 
+    newList.insert(currentSub->info);
+    return build_subgenre_nodes(currentSub->next, newList, 0);
+}
+
+NodeTree* BinaryTree::process_no_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    if (contPriority + 1 < priorityList.size()) {
+        return build_subgenre_nodes(currentSub, priorityList, contPriority + 1);
+    } else {
+        return build_subgenre_nodes(currentSub->next, priorityList, 0);
+    }
+}
+
+NodeTree* BinaryTree::create_result_node(DoublyLinkedList<std::string>& finalList) {
+    NodeTree* resultNode = new NodeTree();
+    resultNode->question = nullptr; 
+    resultNode->yes = nullptr;
+    resultNode->no = nullptr;
+    resultNode->result_list = finalList; // Salva o estado final para a API acessar[cite: 1]
+    return resultNode;
+}
+
+std::string BinaryTree::get_element_at(DoublyLinkedList<std::string>& list, int index) {
+    Node<std::string>* temp = list.get_head();
+    int count = 0;
+    while (temp != nullptr && count < index) {
+        temp = temp->next;
+        count++;
+    }
+    return (temp != nullptr) ? temp->info : ""; 
+}
+
+//metodos de navegação:
+
+NodeTree* BinaryTree::navigate_yes(NodeTree* current) {
+    if (current != nullptr && current->yes != nullptr) {
+        return current->yes;
+    }
+    return current; // Se não houver ramo, permanece no nó atual (ou retorna null)
+}
+
+NodeTree* BinaryTree::navigate_no(NodeTree* current) {
+    if (current != nullptr && current->no != nullptr) {
+        return current->no;
+    }
+    return current;
 }
 </file>
 
@@ -1229,6 +1345,8 @@ class DoublyLinkedList {
 
         DoublyLinkedList(): head(nullptr), tail(nullptr) {}
         DoublyLinkedList(Node<T> * head): head(head) {}
+        DoublyLinkedList(const DoublyLinkedList<T> &other);
+        DoublyLinkedList<T>& operator=(const DoublyLinkedList<T> &other);
     
         ~ DoublyLinkedList ();
     
@@ -1242,6 +1360,37 @@ class DoublyLinkedList {
 
 
 };
+
+
+template <typename T>
+DoublyLinkedList<T>::DoublyLinkedList(const DoublyLinkedList<T> &other) : head(nullptr), tail(nullptr) {
+    Node<T>* temp = other.tail;
+    while (temp != nullptr) {
+        insert(temp->info);
+        temp = temp->previous;
+    }
+}
+
+template <typename T>
+DoublyLinkedList<T>& DoublyLinkedList<T>::operator=(const DoublyLinkedList<T> &other) {
+    if (this != &other) {
+        Node<T>* actual = head;
+        while (actual != nullptr) {
+            Node<T>* ahead = actual->next;
+            delete actual;
+            actual = ahead;
+        }
+        head = nullptr;
+        tail = nullptr;
+
+        Node<T>* temp = other.tail;
+        while (temp != nullptr) {
+            insert(temp->info);
+            temp = temp->previous;
+        }
+    }
+    return *this;
+}
 
 
 template <typename T>
@@ -1334,6 +1483,52 @@ int DoublyLinkedList<T>::size() const {
     
     return count; // Retorna o total
 }
+
+template <typename T>
+void DoublyLinkedList<T>::index_insert(const T &info, int index) {
+    // 1. Caso: Índice maior que o tamanho da lista -> Insere no INÍCIO
+    // (Assumimos que o usuário passa um valor que excede o limite esperado)
+    // Nota: Como não temos um contador de tamanho, tratamos isso como prioridade.
+    if (index >= get_size()) { // Supondo que você tenha um método get_size()
+        Node<T> * new_node = new Node<T>(info);
+        new_node->next = head;
+        new_node->previous = nullptr;
+
+        if (head != nullptr) head->previous = new_node;
+        else tail = new_node;
+        
+        head = new_node;
+        return;
+    }
+
+    // 2. Caso: Índice 0 -> Insere no FINAL
+    if (index == 0) {
+        Node<T> * new_node = new Node<T>(info);
+        new_node->next = nullptr;
+        new_node->previous = tail;
+
+        if (tail != nullptr) tail->next = new_node;
+        else head = new_node;
+
+        tail = new_node;
+        return;
+    }
+
+    // 3. Caso: Inserção no meio (índice intermediário)
+    Node<T> * current = head;
+    int count = 0;
+    while (current != nullptr && count < index) {
+        current = current->next;
+        count++;
+    }
+
+    Node<T> * new_node = new Node<T>(info);
+    new_node->next = current;
+    new_node->previous = current->previous;
+    
+    current->previous->next = new_node;
+    current->previous = new_node;
+}
 </file>
 
 <file path="CMakeLists.txt">
@@ -1355,6 +1550,14 @@ add_executable(
     src/core/user.cpp
     src/core/comment.cpp
     src/core/content.cpp
+    src/core/genre.cpp
+    src/core/question.cpp
+    )
+
+add_executable(
+    test_binary_tree
+    tests/test_binary_tree.cpp
+    src/containers/binary_tree.cpp
     src/core/genre.cpp
     src/core/question.cpp
     )

@@ -1,54 +1,84 @@
-#include <iostream>
-#include <string>
-
 #include "containers/binary_tree.hpp"
-#include "core/question.hpp"
-#include "core/genre.hpp"
-
 
 void BinaryTree::build_tree(DoublyLinkedList<Genre>& genreList) {
     root = build_genre_nodes(genreList.get_head());
 }
 
+
+
 NodeTree* BinaryTree::build_genre_nodes(Node<Genre>* current) {
     if (current == nullptr) return nullptr;
-
     NodeTree* node = new NodeTree();
-    
-    // Cria a pergunta de gênero
+    DoublyLinkedList<std::string> priorityList;
     node->question = new Question(current->info, true);
-    
-    // Caminho YES: Aprofunda nos subgêneros deste gênero
-    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head());
-    
-    // Caminho NO: Vai para o próximo gênero da lista principal
+    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head(), priorityList, 0);
     node->no = build_genre_nodes(current->next);
-
     return node;
 }
 
-NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub, int cont_priority;) {
-    //recebe o ponteiro pra cabeça da lista de subgeneros
-    //inicia pergunta com a o subgenero atual -> question só recebe como parametro um string subgenero
-    //o contador: ele conta 
-    //recebe a lista de prioridade atual e um contador com o numero do indice do subgenero da lista de subgeneros que 
-    //está sendo comparado com a lista de prioridades
-    if(cont_priority == )
-    
-    if (currentSub == nullptr) return nullptr;
+NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    if (currentSub == nullptr) {
+        return create_result_node(priorityList); // Passa a lista acumulada para a folha
+    }
 
     NodeTree* node = new NodeTree();
-    
-    // Cria a pergunta de subgênero
-    // Nota: você pode precisar de um construtor que aceite apenas string/subgênero
-    node->question = new Question(currentSub->info, false); 
-    
-    // O próximo subgênero continua a lista de perguntas
-    // Em uma lista de subgêneros, o 'no' ou 'yes' pode seguir a lógica de priorização
-    node->yes = build_subgenre_nodes(currentSub->next); 
-    node->no = build_subgenre_nodes(currentSub->next);
+    if (priorityList.get_head() == nullptr) {
+        node->question = new Question(currentSub->info, false);
+    } else {
+        std::string compareTarget = get_element_at(priorityList, contPriority);
+        node->question = new Question(compareTarget, currentSub->info, false);
+    }
 
+    node->yes = process_yes_branch(currentSub, priorityList, contPriority);
+    node->no = process_no_branch(currentSub, priorityList, contPriority);
     return node;
 }
 
-//querendo ou não a arvore precisa ser construida de acordo com o vetor prioridade né ?
+NodeTree* BinaryTree::process_yes_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    DoublyLinkedList<std::string> newList = priorityList; 
+    newList.insert(currentSub->info);
+    return build_subgenre_nodes(currentSub->next, newList, 0);
+}
+
+NodeTree* BinaryTree::process_no_branch(Node<std::string>* currentSub, DoublyLinkedList<std::string>& priorityList, int contPriority) {
+    if (contPriority + 1 < priorityList.size()) {
+        return build_subgenre_nodes(currentSub, priorityList, contPriority + 1);
+    } else {
+        return build_subgenre_nodes(currentSub->next, priorityList, 0);
+    }
+}
+
+NodeTree* BinaryTree::create_result_node(DoublyLinkedList<std::string>& finalList) {
+    NodeTree* resultNode = new NodeTree();
+    resultNode->question = nullptr; 
+    resultNode->yes = nullptr;
+    resultNode->no = nullptr;
+    resultNode->result_list = finalList; // Salva o estado final para a API acessar[cite: 1]
+    return resultNode;
+}
+
+std::string BinaryTree::get_element_at(DoublyLinkedList<std::string>& list, int index) {
+    Node<std::string>* temp = list.get_head();
+    int count = 0;
+    while (temp != nullptr && count < index) {
+        temp = temp->next;
+        count++;
+    }
+    return (temp != nullptr) ? temp->info : ""; 
+}
+
+//metodos de navegação:
+
+NodeTree* BinaryTree::navigate_yes(NodeTree* current) {
+    if (current != nullptr && current->yes != nullptr) {
+        return current->yes;
+    }
+    return current; // Se não houver ramo, permanece no nó atual (ou retorna null)
+}
+
+NodeTree* BinaryTree::navigate_no(NodeTree* current) {
+    if (current != nullptr && current->no != nullptr) {
+        return current->no;
+    }
+    return current;
+}
