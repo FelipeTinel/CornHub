@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "auth_service.hpp"
+#include "containers/node.hpp"
+#include "services/auth_service.hpp"
 #include "containers/doubly_linked_list.hpp"
 #include "services/user_manager.hpp"
 
@@ -44,3 +45,7 @@ bool AuthService::login_user(const std::string & username, const std::string & p
 }
 
 void AuthService::logout() { current_user = nullptr; }
+
+User * AuthService::find_by_id(int id) const {
+    return user_list.search(id);
+}

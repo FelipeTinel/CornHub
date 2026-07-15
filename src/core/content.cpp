@@ -50,11 +50,12 @@ void Content::set_type(Type type) { this->type = type; }
 void Content::set_genre(Genre::Value genre) { this->genre = genre; }
 void Content::set_year(int year) { this->year = year; }
 void Content::add_views(long views) { this->views += views; }
+void Content::set_views(long views) { this->views = views; }
 void Content::set_rating(float rating) { if (rating <= 5 && rating >= 0) this->rating = rating; }
 void Content::set_score(double score) { this->score = score; }
 void Content::add_rating(float new_rating) { 
     
-    if (new_rating < 0.0f || new_rating > 0.0f) return;
+    if (new_rating < 0.0f || new_rating > 5.0f) return;
 
     float total_score = (this->rating * this->rating_count) + new_rating;
     this->rating_count++;
