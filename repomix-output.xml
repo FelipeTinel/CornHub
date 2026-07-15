@@ -1,0 +1,1631 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+data/
+  contents_data.txt
+include/
+  containers/
+    binary_tree.hpp
+    doubly_linked_list.hpp
+    node_tree.hpp
+    node.hpp
+  core/
+    comment.hpp
+    content.hpp
+    genre.hpp
+    question.hpp
+    type.hpp
+    user.hpp
+  services/
+    auth_service.hpp
+    comment_manager.hpp
+    content_list.hpp
+    content_manager.hpp
+    data_manager.hpp
+    interaction_service.hpp
+    user_manager.hpp
+src/
+  containers/
+    binary_tree.cpp
+  core/
+    comment.cpp
+    content.cpp
+    genre.cpp
+    question.cpp
+    user.cpp
+  services/
+    auth_service.cpp
+    comment_manager.cpp
+    content_manager.cpp
+    genre_manager.cpp
+    interaction_service.cpp
+    user_manager.cpp
+  main.cpp
+tests/
+  data/
+    comment_test.txt
+    content_test.txt
+    genre_test.txt
+    user_test.txt
+  test_content_save.cpp
+  test_recommendation.cpp
+.gitignore
+CMakeLists.txt
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/services/genre_manager.cpp">
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "services/Genre_manager.hpp"
+#include "core/genre.hpp"
+
+void GenreManager::Genre_frame (std::ofstream & file, const Genre & Genre) {
+
+    file_frame(file, Genre.get_id());
+    file_frame(file, Genre.get_name());
+    file_frame(file, static_cast<int>(Genre.get_genre()));
+
+    file << "\n";
+
+}
+
+void GenreManager::save_data (const DoublyLinkedList<Genre> & list) {
+
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    Node<Genre> * pointer = list.get_head();
+    
+    while (pointer != nullptr) {
+
+        Genre_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
+
+}
+
+void GenreManager::load_data(DoublyLinkedList<Genre> & list) {
+    
+    std::ifstream file(data_file);
+    if (!file.is_open()) {
+        std::cout << "Arquivo não encontrado." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string field;
+
+        std::getline(ss, field, ';');
+        int id = std::stoi(field);
+
+        std::string name;
+        std::getline(ss, name, ';');
+
+        std::getline(ss, field, ';');
+        Genre genre = static_cast<Genre>(std::stoi(field));
+
+        std::getline(ss, field, '{');
+        DoublyLinkedList<std::string> subgenres_list;
+        while(std::getline(ss, field, ',') && field != '}'){
+            
+            subgenres_list.insert(field);
+        }
+
+        Genre Genre(id, name, subgenres_list);
+        list.insert(Genre);
+    }
+
+    file.close();
+}
+</file>
+
+<file path="tests/data/genre_test.txt">
+3;Romance;{Época,Famliar,Sensual,}
+2;Terror;{Suspense,Slasher,Israelita,}
+1;Ação;{Luta,Veículos,Patriotismo,}
+</file>
+
+<file path="data/contents_data.txt">
+
+</file>
+
+<file path="include/core/comment.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+
+class Comment {
+
+    private:
+
+        static int next_id;
+
+        int id, content_id, user_id;
+        std::string text;
+
+    public:    
+    
+        Comment ();
+        Comment (int _content_id, int _user_id, std::string _text);
+        Comment (int id, int _content_id, int _user_id, std::string _text);
+
+
+        int get_id () const;
+        int get_content_id () const;
+        int get_user_id () const;
+        std::string get_comment () const;
+        
+        void set_comment (std::string new_comment);
+
+};
+</file>
+
+<file path="include/core/question.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+
+#include "genre.hpp"
+#include "type.hpp"
+
+class Question {
+
+    private:
+
+        bool is_genre_question = true;
+        std::string question_text;
+        Genre genre;
+        std::string subgenre;
+
+        
+    public:
+
+        Question(const Genre& genre, bool is_genre_question);
+        Question(const std::string& subgenre, bool is_genre_question);
+
+        std::string get_question() const;
+        Genre get_genre() const;
+
+
+        void set_bool(bool is_genre_question);
+        void set_question(std::string question);
+        void set_genre(const Genre& genre);
+
+};
+</file>
+
+<file path="include/core/type.hpp">
+#pragma once
+
+#include <iostream>
+
+enum class Type {
+
+    MOVIE,
+    SERIES,
+    DOCUMENTARY,
+    ANIME,
+    CARTOON,
+
+};
+</file>
+
+<file path="include/core/user.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+
+class User {
+
+    private:
+
+        static int next_id;
+
+        int id;
+        std::string name;
+        std::string password;
+
+    public:
+
+        User ();
+        User (std::string _name, std::string _password);
+        User (int id, std::string _name, std::string password);
+
+        int get_id() const;
+        std::string get_name() const;
+        std::string get_password() const;
+
+        void set_name(std::string new_name);
+        void set_password(std::string new_password);
+
+};
+</file>
+
+<file path="include/services/auth_service.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+
+#include <containers/doubly_linked_list.hpp>
+#include <core/user.hpp>
+
+class AuthService {
+
+    private:
+
+        DoublyLinkedList<User> & user_list;
+        User * current_user;
+
+        User * find_by_name (const std::string & username);
+
+    public:
+
+        AuthService(DoublyLinkedList<User> & global_list);
+
+        bool register_user(const std::string& username, const std::string& password);
+        bool login_user(const std::string& username, const std::string& password);
+
+        void logout();
+
+        bool is_logged_in() const { return current_user != nullptr; }
+        User * get_current_user() const { return current_user; }
+
+
+};
+</file>
+
+<file path="src/core/genre.cpp">
+#include <iostream>
+
+#include "core/genre.hpp"
+
+// Initialize the static member variable genres_list
+DoublyLinkedList<Genre> Genre::genres_list;
+
+Genre::Genre() : id(0), name(""), subgenres_list() {}
+
+Genre::Genre(int i, std::string n, DoublyLinkedList<std::string> sg_list) : id(i), name(n), subgenres_list(sg_list) {
+    addGenre(*this); // Adiciona o gênero à lista de gêneros
+}
+
+void Genre::addSubgenre(const std::string& s) { 
+    subgenres_list.insert(s); 
+} 
+
+void Genre::addGenre(const Genre& g) { 
+    genres_list.insert(g); 
+}
+
+int Genre::get_id() const { 
+    return id; 
+}
+
+std::string Genre::get_name() const { 
+    return name; 
+}
+
+Genre::Value Genre::get_genre() const { 
+    return static_cast<Genre::Value>(id); 
+}
+
+DoublyLinkedList<std::string> Genre::get_subgenres() const { 
+    return subgenres_list; 
+}
+
+DoublyLinkedList<Genre>& Genre::get_genres_list() { 
+    return genres_list; 
+}
+</file>
+
+<file path="src/core/question.cpp">
+#include <iostream>
+
+#include "core/question.hpp"
+
+Question::Question(const Genre& g, bool is_genre) : is_genre_question(is_genre), genre(g) {
+    if (is_genre_question) {
+        question_text = "Do you like " + genre.get_name() + "?";
+    }
+}
+
+Question::Question(const std::string& sub, bool is_genre) : is_genre_question(is_genre), subgenre(sub) {
+    if (!is_genre_question) {
+        question_text = "Do you like " + subgenre + "?";
+    }
+}
+
+std::string Question::get_question() const {
+    return question_text;
+}
+
+Genre Question::get_genre() const {
+    return genre;
+}
+
+void Question::set_bool(bool is_genre) {
+    is_genre_question = is_genre;
+}
+
+void Question::set_question(std::string q) {
+    question_text = q;
+}
+
+void Question::set_genre(const Genre& g) {
+    genre = g;
+}
+</file>
+
+<file path="src/services/auth_service.cpp">
+#include <iostream>
+
+#include "auth_service.hpp"
+#include "containers/doubly_linked_list.hpp"
+#include "services/user_manager.hpp"
+
+AuthService::AuthService (DoublyLinkedList<User> & global_list): user_list(global_list), current_user(nullptr) {}
+
+User * AuthService::find_by_name(const std::string & username) {
+    
+    Node<User> * temp = user_list.get_head();
+
+    while (temp != nullptr) {
+
+        if (temp->info.get_name() == username) return & (temp->info);
+
+        temp = temp->next;
+
+    }
+
+    return nullptr; 
+}
+
+bool AuthService::register_user(const std::string & username, const std::string & password) {
+    
+    if (find_by_name(username) != nullptr) return false;
+    
+    User new_user(username, password);
+    user_list.insert(new_user);
+    return true;
+
+}
+
+bool AuthService::login_user(const std::string & username, const std::string & password) {
+    
+    User * user = find_by_name(username);
+    
+    if (user != nullptr && user->get_password() == password) {
+        current_user = user;
+        return true;
+    }
+
+    return false;
+}
+
+void AuthService::logout() { current_user = nullptr; }
+</file>
+
+<file path="tests/data/comment_test.txt">
+2;2;2;Aaaaaaiiii eu amo minecraft o filmeee;
+1;1;1;Cara que filme bosta;
+</file>
+
+<file path="tests/data/user_test.txt">
+3;Janderson;789;
+2;Marcelo;456;
+1;Felipe;123;
+</file>
+
+<file path="tests/test_recommendation.cpp">
+#include <iostream>
+#include <vector>
+#include <iomanip>
+
+#include "core/content.hpp"
+#include "core/genre.hpp"
+#include "core/type.hpp"
+#include "core/score_calculator.hpp"
+
+int main() {
+    std::cout << "=== CornHub Recommendation System Test ===" << std::endl;
+
+    // Create a mock catalog of contents
+    // Movie/Series get 10 points base.
+    // Popularity = (views/10) + rating. If Movie/Series, multiplied by 1.5.
+    // Classic (<= 2015): multiply by (2026 - year)
+    // New Release (> 2015): divide by (2026 - year)
+    // Liked genres: +10 per genre.
+    std::vector<Content*> catalog = {
+        new Content("Interstellar", Type::MOVIE, Genre::SCIENCE_FICTION, 2014, 950000, 4.9), // Classic, diff = 12
+        new Content("The Matrix", Type::MOVIE, Genre::ACTION, 1999, 800000, 4.8),           // Classic, diff = 27
+        new Content("Modern Comedy", Type::MOVIE, Genre::COMEDY, 2024, 150000, 4.2),        // New Release, diff = 2
+        new Content("Horror Show", Type::SERIES, Genre::HORROR, 2025, 50000, 3.8),          // New Release, diff = 1
+        new Content("Slice of Life Anime", Type::ANIME, Genre::SLICE_OF_LIFE, 2021, 200000, 4.7), // New Release, diff = 5 (Anime, no Movie/Series boost)
+        new Content("Romantic Sunset", Type::MOVIE, Genre::ROMANCE, 2010, 50000, 4.5),       // Classic, diff = 16
+        new Content("Action Movie Fast", Type::MOVIE, Genre::ACTION, 2026, 300000, 3.5),     // New Release, diff = 1
+        new Content("Vintage Horror", Type::MOVIE, Genre::HORROR, 1980, 100000, 4.0)         // Classic, diff = 46
+    };
+
+    ScoreCalculator calculator;
+    calculator.build_default_tree();
+
+    std::cout << "Loading recommendation questions tree..." << std::endl;
+    std::cout << "Please answer the questions below to receive catalog recommendations." << std::endl;
+
+    Node* recommendations = calculator.recommend(catalog);
+
+    std::cout << "\n=== Your Recommendations (Sorted by Score) ===" << std::endl;
+    std::cout << std::left << std::setw(25) << "Title" 
+              << std::setw(15) << "Type" 
+              << std::setw(18) << "Genre" 
+              << std::setw(8) << "Year" 
+              << std::setw(12) << "Views" 
+              << std::setw(8) << "Rating" 
+              << std::setw(10) << "Score" 
+              << std::endl;
+    std::cout << std::string(96, '-') << std::endl;
+
+    Node* curr = recommendations;
+    while (curr != nullptr) {
+        Content* c = curr->content;
+        std::string typeStr;
+        switch(c->get_type()) {
+            case Type::MOVIE: typeStr = "Movie"; break;
+            case Type::SERIES: typeStr = "Series"; break;
+            case Type::DOCUMENTARY: typeStr = "Documentary"; break;
+            case Type::ANIME: typeStr = "Anime"; break;
+            case Type::CARTOON: typeStr = "Cartoon"; break;
+        }
+
+        std::string genreStr;
+        switch(c->get_genre()) {
+            case Genre::ACTION: genreStr = "Action"; break;
+            case Genre::COMEDY: genreStr = "Comedy"; break;
+            case Genre::ROMANCE: genreStr = "Romance"; break;
+            case Genre::HORROR: genreStr = "Horror"; break;
+            case Genre::SUSPENSE: genreStr = "Suspense"; break;
+            case Genre::DRAMA: genreStr = "Drama"; break;
+            case Genre::SCIENCE_FICTION: genreStr = "Sci-Fi"; break;
+            case Genre::SLICE_OF_LIFE: genreStr = "Slice-of-Life"; break;
+        }
+
+        std::cout << std::left << std::setw(25) << c->get_title()
+                  << std::setw(15) << typeStr
+                  << std::setw(18) << genreStr
+                  << std::setw(8) << c->get_year()
+                  << std::setw(12) << c->get_views()
+                  << std::setw(8) << c->get_rating()
+                  << std::setw(10) << c->get_score()
+                  << std::endl;
+
+        curr = curr->next;
+    }
+
+    // Clean up
+    ScoreCalculator::free_list(recommendations);
+    for (Content* c : catalog) {
+        delete c;
+    }
+
+    std::cout << "\nTest completed successfully." << std::endl;
+    return 0;
+}
+</file>
+
+<file path="include/services/comment_manager.hpp">
+#pragma once
+
+#include <iostream>
+#include <fstream>
+
+#include "data_manager.hpp"
+#include "core/comment.hpp"
+#include "containers/doubly_linked_list.hpp"
+
+class CommentManager : DataManager<Comment> {
+
+    private:
+
+        void comment_frame(std::ofstream & file, const Comment  & comment);
+
+    public: 
+
+        CommentManager (const std::string  & data_file) : DataManager<Comment>(data_file) {}
+
+        void save_data(const DoublyLinkedList<Comment> & list) override;
+        void load_data(DoublyLinkedList<Comment> & list) override;
+
+};
+</file>
+
+<file path="include/services/content_list.hpp">
+#pragma once
+
+#include <iostream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "core/content.hpp"
+
+class ContentList {
+
+    private:
+
+        DoublyLinkedList<Content> main_list, recomendation_list, rating_list, popula_list, launch_list;
+
+    public:
+
+        ContentList () {}
+        ~ ContentList () {}
+
+        void create_main_list(Node<Content>* head);
+        void create_recomendation_list();
+        void create_rating_list();
+        void create_popular_list();
+        void create_launch_list ();
+
+};
+</file>
+
+<file path="src/core/user.cpp">
+#include <iostream>
+
+#include "core/user.hpp"
+
+int User::next_id = 1;
+
+User::User (): id(0), name(""), password("") {}
+
+User::User(std::string _name, std::string _password): id(next_id++), name(_name), password(_password) {}
+
+User::User(int id, std::string _name, std::string _password): id(id), name(_name), password(_password) 
+{
+    if (id >= next_id) next_id += 1;
+}
+
+int User::get_id () const { return id; }
+std::string User::get_name () const { return name; }
+std::string User::get_password () const { return password; }
+
+void User::set_name (std::string new_name) { name = new_name; }
+void User::set_password (std::string new_password) { password = new_password; }
+</file>
+
+<file path="src/services/comment_manager.cpp">
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <fstream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "services/comment_manager.hpp"
+#include "core/comment.hpp"
+
+void CommentManager::comment_frame (std::ofstream & file, const Comment & comment) {
+
+    file_frame(file, comment.get_id());
+    file_frame(file, comment.get_content_id());
+    file_frame(file, comment.get_user_id());
+    file_frame(file, comment.get_comment());
+    file << "\n";
+
+}
+
+void CommentManager::save_data (const DoublyLinkedList<Comment> & list) {
+
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    Node<Comment> * pointer = list.get_head();
+    
+    while (pointer != nullptr) {
+
+        comment_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
+
+}
+
+void CommentManager::load_data (DoublyLinkedList<Comment> & list) {
+
+    std::ifstream file(data_file);
+    if (!file.is_open()) {
+        std::cout << "Arquivo não encontrado." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string field;
+
+        std::getline(ss, field, ';');
+        int id = std::stoi(field);
+
+        std::getline(ss, field, ';');
+        int content_id = std::stoi(field);
+
+        std::getline(ss, field, ';');
+        int user_id = std::stoi(field);
+
+        std::string text;
+        std::getline(ss, text, ';');
+
+        Comment comment(id, content_id, user_id, text);
+        list.insert(comment);
+    }
+
+    file.close();
+
+}
+</file>
+
+<file path="src/services/interaction_service.cpp">
+#include <iostream>
+
+#include "services/interaction_service.hpp"
+
+InteractionService::InteractionService(AuthService& auth, DoublyLinkedList<Comment>& comments): 
+    
+    auth_service(auth), 
+    global_comments(comments) 
+    
+{}
+
+void InteractionService::watch_content(Content& content) { content.add_views(1); }
+
+bool InteractionService::add_comment_to_content(Content& content, const std::string& text) {
+
+    if (auth_service.is_logged_in()) {
+        
+        int user_id = auth_service.get_current_user()->get_id();
+        int content_id = content.get_id();
+
+        Comment new_comment(content_id, user_id, text);
+
+        global_comments.insert(new_comment);
+
+        return true;
+    
+    }
+    
+    return false;
+}
+
+bool InteractionService::rate_content(Content & content, float new_note) {
+    
+    if (auth_service.is_logged_in()) {
+        
+        content.add_rating(new_note); 
+        return true;
+
+    }
+
+    return false;
+}
+</file>
+
+<file path="src/services/user_manager.cpp">
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <fstream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "services/user_manager.hpp"
+#include "core/user.hpp"
+
+void UserManager::user_frame (std::ofstream & file, const User & user) {
+
+    file_frame(file, user.get_id());
+    file_frame(file, user.get_name());
+    file_frame(file, user.get_password());
+    file << "\n";
+
+}
+
+void UserManager::save_data (const DoublyLinkedList<User> & list) {
+
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    Node<User> * pointer = list.get_head();
+    
+    while (pointer != nullptr) {
+
+        user_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
+
+}
+
+void UserManager::load_data (DoublyLinkedList<User> & list) {
+
+    std::ifstream file(data_file);
+    if (!file.is_open()) {
+        std::cout << "Arquivo não encontrado." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string field;
+
+        std::getline(ss, field, ';');
+        int id = std::stoi(field);
+
+        std::string name;
+        std::getline(ss, name, ';');
+
+        std::string password;
+        std::getline(ss, password, ';');
+
+        User user(id, name, password);
+        list.insert(user);
+    }
+
+    file.close();
+
+}
+</file>
+
+<file path="src/main.cpp">
+
+</file>
+
+<file path="tests/test_content_save.cpp">
+#include <iostream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "core/content.hpp"
+#include "services/content_manager.hpp"
+#include "core/user.hpp"
+#include "services/user_manager.hpp"
+#include "core/comment.hpp"
+#include "services/comment_manager.hpp"
+
+int main () {
+
+    DoublyLinkedList<Content> ctlist;
+    DoublyLinkedList<User> ulist;
+    DoublyLinkedList<Comment> cmlist;
+
+    ContentManager ctmanager{"../tests/data/content_test.txt"};
+    UserManager umanager{"../tests/data/user_test.txt"};
+    CommentManager cmmanager{"../tests/data/comment_test.txt"};
+
+    Content content1{"Interstellar", Type::MOVIE, Genre::SCIENCE_FICTION, 2014, 950000, 4.9};
+    Content content2{"Minecraft", Type::MOVIE, Genre::ACTION, 2025, 950000, 5.0};
+    Content content3{"Duna parte 3", Type::MOVIE, Genre::ACTION, 2010, 950000, 0.5};
+
+    User user1 {"Felipe", "123"};
+    User user2 {"Marcelo", "456"};
+    User user3 {"Janderson", "789"};
+
+    Comment comment1 {1, 1, "Cara que filme bosta"};
+    Comment comment2 {2, 2, "Aaaaaaiiii eu amo minecraft o filmeee"};
+
+    ulist.insert(user1);
+    ulist.insert(user2);
+    ulist.insert(user3);
+
+    cmlist.insert(comment1);
+    cmlist.insert(comment2);
+
+    ctlist.insert(content1);
+    ctlist.insert(content2);
+    ctlist.insert(content3);
+
+    ctmanager.save_data(ctlist);
+
+    umanager.save_data(ulist);
+
+    cmmanager.save_data(cmlist);
+
+    content2 = ctlist.pop(2);
+
+    ctmanager.save_data(ctlist);
+
+}
+</file>
+
+<file path=".gitignore">
+/build/*
+</file>
+
+<file path="include/containers/node_tree.hpp">
+#pragma once
+
+#include <iostream>
+
+#include <string>
+
+#include "core/content.hpp"
+#include "core/question.hpp"
+
+struct NodeTree {
+
+    Question * question;
+
+    NodeTree * no, * yes;
+    
+    NodeTree() :  question(nullptr), no(nullptr), yes(nullptr) {}
+
+};
+
+
+/*
+if (no){
+    código de priorização de vetor roda
+    vetor aponta pra proxima pergunta
+}
+
+as perguntas são feitas de forma pre processadas, 
+
+a arvore é instanciada no construtor, 
+criando as perguntas com base nas listas de generos e subgeneros, 
+e as perguntas são feitas de forma pre processadas,
+
+para testar a gente pode criar os objetos de genero da main 
+e criar um metodo de adicionar subgenero na lista deles,
+adicionando subgeneros e generos, e depois instanciando a arvore,
+e depois testando a busca de perguntas na arvore,
+
+e vão jogar o proximo nó da arvore,
+*/
+</file>
+
+<file path="include/core/genre.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+#include "containers/doubly_linked_list.hpp"
+
+class Genre {
+    public:
+        enum Value {
+            ACTION = 1,
+            COMEDY = 2,
+            ROMANCE = 3,
+            HORROR = 4,
+            SUSPENSE = 5,
+            DRAMA = 6,
+            SCIENCE_FICTION = 7,
+            SLICE_OF_LIFE = 8
+        };
+
+    private:
+        int id;
+        std::string name;
+        DoublyLinkedList<std::string> subgenres_list;
+        static DoublyLinkedList<Genre> genres_list;
+
+    public:
+        Genre();
+        Genre(int id, std::string name, DoublyLinkedList<std::string> subgenres_list);
+
+        void addSubgenre(const std::string& s);
+        static void addGenre(const Genre& g);
+
+        int get_id() const;
+        std::string get_name() const;
+        Value get_genre() const;
+        DoublyLinkedList<std::string> get_subgenres() const;
+        static DoublyLinkedList<Genre>& get_genres_list();
+};
+</file>
+
+<file path="include/services/interaction_service.hpp">
+#pragma once
+
+#include <iostream>
+
+#include "services/auth_service.hpp"
+#include "containers/doubly_linked_list.hpp"
+#include "core/content.hpp"
+#include "core/comment.hpp"
+
+class InteractionService {
+
+    private:
+        
+        AuthService & auth_service;             
+        DoublyLinkedList<Comment> & global_comments;
+
+    public:
+
+        InteractionService(AuthService & auth, DoublyLinkedList<Comment> & comments);
+
+        void watch_content(Content & content);
+        bool add_comment_to_content(Content& content, const std::string & text);
+        bool rate_content(Content & content, float new_note);
+};
+</file>
+
+<file path="include/services/user_manager.hpp">
+#pragma once
+
+#include <iostream>
+#include <fstream>
+
+#include "data_manager.hpp"
+#include "core/user.hpp"
+#include "containers/doubly_linked_list.hpp"
+
+class UserManager : DataManager<User> {
+
+    private:
+
+        void user_frame(std::ofstream & file, const User  & user);
+
+    public: 
+
+        UserManager (const std::string  & data_file) : DataManager<User>(data_file) {}
+
+        void save_data(const DoublyLinkedList<User> & list) override;
+        void load_data(DoublyLinkedList<User> & list) override;
+
+};
+</file>
+
+<file path="README.md">
+# ECV-ENTRETENIMENTO-CERTO-E-VIVO
+Trabalho final de Estruturas de Dados 1 UNEB 2026.1
+
+# (0_0)
+
+# Como rodar CMakeLists!!!!
+
+### Cole no aquivo "CMakeLists.txt" o seguinte código:
+
+</br>
+
+```bash
+add_executable(
+
+    nome_executavel
+
+    arquivo1.cpp
+    arquivo2.cpp
+    etc.cpp
+
+)
+```
+
+</br>
+
+### Depois disso, rode no seu terminal as seguintes linhas de código:
+
+```bash
+cd build/
+cmake ..
+cmake --build .
+./nome_executavel
+```
+
+### Fim de papo.
+</file>
+
+<file path="include/containers/binary_tree.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "node_tree.hpp"
+
+#include "core/genre.hpp"
+#include "core/type.hpp"
+
+class BinaryTree {
+
+    private:
+
+        NodeTree * root;
+
+        NodeTree* build_genre_nodes(Node<Genre>* current);
+        NodeTree* build_subgenre_nodes(Node<std::string>* currentSub);
+
+        void destroy(NodeTree* node) {
+            if (node != nullptr) {
+                destroy(node->no);
+                destroy(node->yes);
+                delete node;
+            }
+        }
+        
+
+    public:
+
+        BinaryTree (): root(nullptr) {}
+        ~BinaryTree() { destroy(root); }
+
+        void build_tree(DoublyLinkedList<Genre>& genreList); // Inicia a construção
+
+
+        NodeTree* get_root() const { return root; }
+        void set_root(NodeTree* new_root) { root = new_root; }
+
+};
+</file>
+
+<file path="include/containers/node.hpp">
+#pragma once
+
+#include <iostream>
+
+template <typename T>
+struct Node {
+
+    T info;
+    Node * next, * previous;
+
+    Node(const T &_info): info(_info), next(nullptr), previous(nullptr) {}
+};
+</file>
+
+<file path="src/core/comment.cpp">
+#include <iostream>
+
+#include "core/comment.hpp"
+
+int Comment::next_id = 1;
+
+Comment::Comment (): id(0), content_id(0), user_id(0), text("") {}
+
+Comment::Comment(int _user_id, int _content_id, std::string _text): id(next_id++), user_id(_user_id), content_id(_content_id), text(_text) {}
+
+Comment::Comment(int id, int _user_id, int _content_id, std::string _text): id(id), user_id(_user_id), content_id(_content_id), text(_text) 
+{
+    if (id >= next_id) next_id += 1;
+}
+
+int Comment::get_id () const { return id; }
+int Comment::get_content_id () const { return content_id; }
+int Comment::get_user_id () const { return user_id; }
+std::string Comment::get_comment () const { return text; };
+        
+void Comment::set_comment (std::string new_comment) { text = new_comment; }
+</file>
+
+<file path="tests/data/content_test.txt">
+3;Duna parte 3;0;0;2010;950000;0.5;
+1;Interstellar;0;6;2014;950000;4.9;
+</file>
+
+<file path="src/containers/binary_tree.cpp">
+#include <iostream>
+#include <string>
+
+#include "containers/binary_tree.hpp"
+#include "core/question.hpp"
+#include "core/genre.hpp"
+
+
+void BinaryTree::build_tree(DoublyLinkedList<Genre>& genreList) {
+    root = build_genre_nodes(genreList.get_head());
+}
+
+NodeTree* BinaryTree::build_genre_nodes(Node<Genre>* current) {
+    if (current == nullptr) return nullptr;
+
+    NodeTree* node = new NodeTree();
+    
+    // Cria a pergunta de gênero
+    node->question = new Question(current->info, true);
+    
+    // Caminho YES: Aprofunda nos subgêneros deste gênero
+    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head());
+    
+    // Caminho NO: Vai para o próximo gênero da lista principal
+    node->no = build_genre_nodes(current->next);
+
+    return node;
+}
+
+NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub) {
+    if (currentSub == nullptr) return nullptr;
+
+    NodeTree* node = new NodeTree();
+    
+    // Cria a pergunta de subgênero
+    // Nota: você pode precisar de um construtor que aceite apenas string/subgênero
+    node->question = new Question(currentSub->info, false); 
+    
+    // O próximo subgênero continua a lista de perguntas
+    // Em uma lista de subgêneros, o 'no' ou 'yes' pode seguir a lógica de priorização
+    node->yes = build_subgenre_nodes(currentSub->next); 
+    node->no = build_subgenre_nodes(currentSub->next);
+
+    return node;
+}
+</file>
+
+<file path="include/containers/doubly_linked_list.hpp">
+#pragma once
+
+#include <iostream>
+
+#include "node.hpp"
+
+template <typename T>
+class DoublyLinkedList {
+
+    Node<T> * head, * tail;
+
+    public:
+
+        DoublyLinkedList(): head(nullptr), tail(nullptr) {}
+        DoublyLinkedList(Node<T> * head): head(head) {}
+    
+        ~ DoublyLinkedList ();
+    
+        void insert (const T &info);
+        T pop (int id);
+        T * search (int id) const;
+        int size() const;
+
+        Node<T> * get_head() const { return head; }
+        Node<T> * get_tail() const { return tail; }
+
+
+};
+
+
+template <typename T>
+void DoublyLinkedList<T>::insert(const T &info) {
+
+    Node<T> * new_node = new Node<T>(info);
+    
+    new_node->previous = nullptr;
+
+    if (head == nullptr) tail = new_node;
+    else head->previous = new_node;
+
+    new_node->next = head;
+
+    head = new_node;
+
+}
+
+template <typename T>
+T DoublyLinkedList<T>::pop (int id) {
+
+    Node<T> * temp = tail;
+
+    while (temp != nullptr) {
+
+        if (temp->info.get_id() == id) {
+
+            if (temp->previous != nullptr) temp->previous->next = temp->next;
+            else head = temp->next;
+
+            if (temp->next != nullptr) temp->next->previous = temp->previous;
+            else tail = temp->previous;
+
+            T save_content = temp->info;
+            delete temp;
+            return save_content;
+        
+        }
+
+        temp = temp->previous;
+
+    }
+
+    return T();
+
+}
+
+template <typename T>
+DoublyLinkedList<T>::~DoublyLinkedList() {
+
+    Node<T>* actual = head;
+    Node<T>* ahead = nullptr;
+
+    while (actual != nullptr) {
+
+        ahead = actual->next;
+        
+        delete actual;
+
+        actual = ahead;
+    }
+
+    head = nullptr;
+    tail = nullptr;
+}
+
+template <typename T>
+T * DoublyLinkedList<T>::search(int id) const{
+    
+    Node<T>* node = head;
+    
+    while (node != nullptr) {
+        if (node->info.get_id() == id) return &node->info;
+        node = node->next;
+    }
+    
+    return nullptr;
+}
+
+
+template <typename T>
+int DoublyLinkedList<T>::size() const {
+    int count = 0;
+    Node<T>* current = head; // Começa pelo head
+    
+    while (current != nullptr) { // Percorre até o fim da lista
+        count++;
+        current = current->next; // Avança para o próximo nó
+    }
+    
+    return count; // Retorna o total
+}
+</file>
+
+<file path="CMakeLists.txt">
+cmake_minimum_required(VERSION 3.12)
+project(ECV)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(include)
+
+add_executable(
+    test_content_save
+    tests/test_content_save.cpp
+    src/services/user_manager.cpp
+    src/services/comment_manager.cpp
+    src/services/content_manager.cpp
+    src/containers/binary_tree.cpp
+    src/core/user.cpp
+    src/core/comment.cpp
+    src/core/content.cpp
+    src/core/genre.cpp
+    src/core/question.cpp
+    )
+</file>
+
+<file path="src/core/content.cpp">
+#include <iostream>
+
+#include "core/content.hpp"
+
+int Content::next_id = 1;
+
+Content::Content (): id(0), title(""), type(Type::MOVIE), genre(Genre::ACTION), year(0), views(0), rating(0.0f), rating_count(0) {}
+
+Content::Content (std::string title, Type type, Genre::Value genre, int year, long views, float rating):
+
+    id(next_id++),
+    title(title),
+    type(type),
+    genre(genre),
+    year(year),
+    views(views),
+    rating((rating <= 5 && rating >= 0) ? rating : 0),
+    rating_count(0)
+
+{
+}
+
+Content::Content (int id, std::string title, Type type, Genre::Value genre, int year, long views, float rating, int rating_count):
+
+    id(id),
+    title(title),
+    type(type),
+    genre(genre),
+    year(year),
+    views(views),
+    rating((rating <= 5 && rating >= 0) ? rating : 0),
+    rating_count(rating_count)
+
+{
+    if (id >= next_id) next_id = id + 1;
+}
+
+int Content::get_id() const { return id; }
+std::string Content::get_title() const { return title; }
+Type Content::get_type() const { return type; }
+Genre::Value Content::get_genre() const { return genre; }
+int Content::get_year() const { return year; }
+long Content::get_views() const { return views; }
+float Content::get_rating () const { return rating; }
+int Content::get_rating_count () const { return rating_count; }
+double Content::get_score() const { return score; }
+
+void Content::set_title(std::string title) { this->title = title; }
+void Content::set_type(Type type) { this->type = type; }
+void Content::set_genre(Genre::Value genre) { this->genre = genre; }
+void Content::set_year(int year) { this->year = year; }
+void Content::add_views(long views) { this->views += views; }
+void Content::set_rating(float rating) { if (rating <= 5 && rating >= 0) this->rating = rating; }
+void Content::set_score(double score) { this->score = score; }
+void Content::add_rating(float new_rating) { 
+    
+    if (new_rating < 0.0f || new_rating > 0.0f) return;
+
+    float total_score = (this->rating * this->rating_count) + new_rating;
+    this->rating_count++;
+    this->rating = total_score / this->rating_count;
+    
+}
+</file>
+
+<file path="include/core/content.hpp">
+#pragma once
+
+#include <iostream>
+#include <string>
+
+#include "genre.hpp"
+#include "type.hpp"
+
+class Content {
+
+    private:
+
+        static int next_id;
+
+        int id, year;
+        std::string title;
+        Type type;
+        Genre::Value genre;
+        long views;
+        float rating;
+        int rating_count;
+        double score;
+        
+
+    public:
+
+        Content();
+        Content (std::string title, Type type, Genre::Value genre, int year, long views, float rating);
+        Content(int id, std::string title, Type type, Genre::Value genre, int year, long views, float rating, int rating_count);
+
+        int get_id() const;
+        std::string get_title() const;
+        Type get_type() const;
+        Genre::Value get_genre() const;
+        int get_year() const;
+        long get_views() const;
+        float get_rating() const;
+        int get_rating_count() const;
+        double get_score() const;
+
+        void set_title(std::string title);
+        void set_type(Type type);
+        void set_genre(Genre::Value gere);
+        void set_year(int year);
+        void add_views(long views);
+        void set_rating(float rating);
+        void add_rating (float new_rating);
+        void set_score(double score);
+
+};
+</file>
+
+<file path="include/services/content_manager.hpp">
+#pragma once
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include "data_manager.hpp"
+#include "core/content.hpp"
+#include "containers/doubly_linked_list.hpp"
+
+class ContentManager : public DataManager<Content> {
+
+    private:
+
+        void content_frame (std::ofstream & file, const Content & content);
+
+    public:
+
+        ContentManager (const std::string & data_file) : DataManager<Content>(data_file) {}
+
+        void save_data(const DoublyLinkedList<Content> & list) override;
+        void load_data(DoublyLinkedList<Content> & list) override;
+
+};
+</file>
+
+<file path="include/services/data_manager.hpp">
+#pragma once
+
+#include <iostream>
+#include <fstream>
+#include <string>
+
+#include "containers/doubly_linked_list.hpp"
+#include "containers/node.hpp"
+template<typename T>
+class DataManager {
+
+    protected:
+
+        std::string data_file;
+ 
+        template <typename U>
+        void file_frame (std::ofstream & file, U info) { file << info << ";"; }
+
+    public:
+
+        explicit DataManager (const std::string & data_file): data_file(data_file) {}
+
+        virtual void save_data(const DoublyLinkedList<T> & list) = 0;
+        virtual void load_data(DoublyLinkedList<T> & list) = 0;
+    
+        virtual ~ DataManager() = default;
+
+};
+</file>
+
+<file path="src/services/content_manager.cpp">
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+
+#include "containers/doubly_linked_list.hpp"
+#include "services/content_manager.hpp"
+#include "core/content.hpp"
+
+void ContentManager::content_frame (std::ofstream & file, const Content & content) {
+
+    file_frame(file, content.get_id());
+    file_frame(file, content.get_title());
+    file_frame(file, static_cast<int>(content.get_type()));
+    file_frame(file, static_cast<int>(content.get_genre()));
+    file_frame(file, content.get_year());
+    file_frame(file, content.get_views());
+    file_frame(file, content.get_rating());
+    file_frame(file, content.get_rating_count());
+    file << "\n";
+
+}
+
+void ContentManager::save_data (const DoublyLinkedList<Content> & list) {
+
+    std::ofstream file(data_file);
+
+    if (!file.is_open()) return;
+
+    Node<Content> * pointer = list.get_head();
+    
+    while (pointer != nullptr) {
+
+        content_frame(file, pointer->info);
+        pointer = pointer->next;
+
+    }
+
+    file.close();
+
+}
+
+void ContentManager::load_data(DoublyLinkedList<Content> & list) {
+    
+    std::ifstream file(data_file);
+    if (!file.is_open()) {
+        std::cout << "Arquivo não encontrado." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string field;
+
+        std::getline(ss, field, ';');
+        int id = std::stoi(field);
+
+        std::string title;
+        std::getline(ss, title, ';');
+
+        std::getline(ss, field, ';');
+        Type type = static_cast<Type>(std::stoi(field));
+
+        std::getline(ss, field, ';');
+        Genre::Value genre = static_cast<Genre::Value>(std::stoi(field));
+
+        std::getline(ss, field, ';');
+        int year = std::stoi(field);
+
+        std::getline(ss, field, ';');
+        long views = std::stol(field);
+
+        std::getline(ss, field, ';');
+        float rating = std::stof(field);
+
+        std::getline(ss, field, ';');
+        int rating_count = std::stoi(field);
+
+        Content content(id, title, type, genre, year, views, rating, rating_count);
+        list.insert(content);
+    }
+
+    file.close();
+}
+</file>
+
+</files>

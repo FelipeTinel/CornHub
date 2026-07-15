@@ -16,14 +16,14 @@ add_executable(
     src/core/user.cpp
     src/core/comment.cpp
     src/core/content.cpp
-    src/containers/binary_tree.cpp
+    src/core/genre.cpp
+    src/core/question.cpp
     )
 
 add_executable(
-    test_recommendation
-    tests/test_recommendation.cpp
-    src/core/content.cpp
-    src/services/content_manager.cpp
+    test_binary_tree
+    tests/test_binary_tree.cpp
     src/containers/binary_tree.cpp
-    src/core/score_calculator.cpp
-)
+    src/core/genre.cpp
+    src/core/question.cpp
+    )

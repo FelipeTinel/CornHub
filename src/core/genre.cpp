@@ -2,37 +2,39 @@
 
 #include "core/genre.hpp"
 
-class Genre {
+// Initialize the static member variable genres_list
+DoublyLinkedList<Genre> Genre::genres_list;
 
-    //esta classe vai ler uma lista de generos static e vai criar objetos do tipo Genre, 
-    //cada genero vai ter uma lista de subgeneros próprios
-    //que serão usados para criar perguntas na  arvore binaria.
-    
-    public:
-    Genre(){
-    Node<Genre>* current = allGenres.get_head();
+Genre::Genre() : id(0), name(""), subgenres_list() {}
 
-    while (current != nullptr) {
-        // Aqui você tem acesso ao objeto Genre
-        Genre& g = current->info;
-        
-        std::cout << "Processando genero: " << g.get_name() << std::endl;
-        
-        // Processar os subgêneros deste gênero
-        Node<Subgenre>* subCurrent = g.subgenres.get_head();
-    while (subCurrent != nullptr) {
-        std::cout << " - Subgenero: " << subCurrent->info.get_name() << std::endl;
-        subCurrent = subCurrent->next;
-    }
-
-    // Avança para o próximo
-    current = current->next;
+Genre::Genre(int i, std::string n, DoublyLinkedList<std::string> sg_list) : id(i), name(n), subgenres_list(sg_list) {
+    addGenre(*this); // Adiciona o gênero à lista de gêneros
 }
-        //neste construtor, ele vai inicializar os objetos generos, 
-        //e os subgeneros de cada genero, 
-        //a partir de um arquivo de texto que contem os generos e subgeneros.
 
-    };
+void Genre::addSubgenre(const std::string& s) { 
+    subgenres_list.insert(s); 
+} 
 
+void Genre::addGenre(const Genre& g) { 
+    genres_list.insert(g); 
+}
 
-};
+int Genre::get_id() const { 
+    return id; 
+}
+
+std::string Genre::get_name() const { 
+    return name; 
+}
+
+Genre::Value Genre::get_genre() const { 
+    return static_cast<Genre::Value>(id); 
+}
+
+DoublyLinkedList<std::string> Genre::get_subgenres() { 
+    return subgenres_list; 
+}
+
+DoublyLinkedList<Genre>& Genre::get_genres_list() { 
+    return genres_list; 
+}

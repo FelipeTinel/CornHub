@@ -1,37 +1,38 @@
 #pragma once
 
 #include <iostream>
+#include <string>
+#include "containers/doubly_linked_list.hpp"
 
 class Genre {
-
-    //esta classe vai ler uma lista de generos static e vai criar objetos do tipo Genre, 
-    //cada genero vai ter uma lista de subgeneros próprios
-    //que serão usados para criar perguntas na  arvore binaria.
+    public:
+        enum Value {
+            ACTION = 1,
+            COMEDY = 2,
+            ROMANCE = 3,
+            HORROR = 4,
+            SUSPENSE = 5,
+            DRAMA = 6,
+            SCIENCE_FICTION = 7,
+            SLICE_OF_LIFE = 8
+        };
 
     private:
-    
-    static DoublyLinkedList<Genre> genres; //inicializada com dados dos arquivos de genero
-    
-    std::string name;
-    DoublyLinkedList<std::string> subgenres; //inicializada com dados dos arquivos de subgenero
+        int id;
+        std::string name;
+        DoublyLinkedList<std::string> subgenres_list;
+        static DoublyLinkedList<Genre> genres_list;
 
     public:
-    Genre(){
-        
-        //neste construtor, ele vai inicializar os objetos generos, 
-        //e os subgeneros de cada genero, 
-        //a partir de um arquivo de texto que contem os generos e subgeneros.
+        Genre();
+        Genre(int id, std::string name, DoublyLinkedList<std::string> subgenres_list);
 
-    };
+        void addSubgenre(const std::string& s);
+        static void addGenre(const Genre& g);
+
+        int get_id() const;
+        std::string get_name() const;
+        Value get_genre() const;
+        DoublyLinkedList<std::string> get_subgenres();
+        static DoublyLinkedList<Genre>& get_genres_list();
 };
-
-
-//generos atuais
-//ACTION,
-//COMEDY,
-//ROMANCE,
-//HORROR,
-//SUSPENSE,
-//DRAMA,
-//SCIENCE_FICTION,
-//SLICE_OF_LIFE,

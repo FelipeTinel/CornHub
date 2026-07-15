@@ -9,9 +9,10 @@
 
 struct NodeTree {
 
-    Question * question;
+    Question * question = nullptr;
 
-    NodeTree * no, * yes;
+    NodeTree * no = nullptr;
+    NodeTree * yes = nullptr;
     
     NodeTree() :  question(nullptr), no(nullptr), yes(nullptr) {}
 
@@ -35,6 +36,5 @@ e criar um metodo de adicionar subgenero na lista deles,
 adicionando subgeneros e generos, e depois instanciando a arvore,
 e depois testando a busca de perguntas na arvore,
 
-a resposta das perguntas serão metodos da arvore, 
-que vão rodar o código de priorização de vetor,
 e vão jogar o proximo nó da arvore,
+*/

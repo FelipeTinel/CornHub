@@ -6,37 +6,27 @@
 #include "genre.hpp"
 #include "type.hpp"
 
-template <typename T>
 class Question {
 
     private:
 
-        static int next_id;
-
-        int id;
-
         bool is_genre_question = true;
-
-        std::string question;
-
+        std::string question_text;
         Genre genre;
+        std::string subgenre;
 
         
-
     public:
 
-        Question();
-        Question(std::string question, Genre genre, bool is_genre_question);
-
-        Question(std::string question, Genre genre);
+        Question(const Genre& genre, bool is_genre_question);
+        Question(const std::string& subgenre, bool is_genre_question);
 
         std::string get_question() const;
-        Type get_type() const;
         Genre get_genre() const;
 
+
+        void set_bool(bool is_genre_question);
         void set_question(std::string question);
-        void set_answer(std::string answer);
-        void set_type(Type type);
-        void set_genre(Genre genre);
+        void set_genre(const Genre& genre);
 
 };

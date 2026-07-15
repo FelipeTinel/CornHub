@@ -6,34 +6,35 @@
 
 #include "node_tree.hpp"
 
-#include "genre.hpp"
-#include "type.hpp"
+#include "core/genre.hpp"
+#include "core/type.hpp"
 
-template <typename T>
 class BinaryTree {
 
     private:
 
         NodeTree * root;
 
-        std::vector<std::string> subgenres_priority;
+        NodeTree* build_genre_nodes(Node<Genre>* current);
+        NodeTree* build_subgenre_nodes(Node<std::string>* currentSub);
 
         void destroy(NodeTree* node) {
             if (node != nullptr) {
-                destroy(node->left);
-                destroy(node->right);
+                destroy(node->no);
+                destroy(node->yes);
+                delete node->question;
                 delete node;
             }
         }
+        
 
     public:
-    
+
         BinaryTree (): root(nullptr) {}
         ~BinaryTree() { destroy(root); }
 
-        void insert(std::string info);
-        void answer(); //seleciona uma resposta pra pergunta, e vai rodar o código de priorização de vetor, e vai jogar o proximo nó da arvore
-        void priority_order();// é chamado pelo answer pra arrumar o vetor de prioridades.
+        void build_tree(DoublyLinkedList<Genre>& genreList); // Inicia a construção
+
 
         NodeTree* get_root() const { return root; }
         void set_root(NodeTree* new_root) { root = new_root; }

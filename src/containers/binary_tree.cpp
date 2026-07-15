@@ -2,51 +2,53 @@
 #include <string>
 
 #include "containers/binary_tree.hpp"
+#include "core/question.hpp"
+#include "core/genre.hpp"
 
-void BinaryTree::BinaryTree() {
-    //inicializa a arvore binaria com as perguntas de genero e subgenero,
-    for(){
-        
-    }
+
+void BinaryTree::build_tree(DoublyLinkedList<Genre>& genreList) {
+    root = build_genre_nodes(genreList.get_head());
 }
 
-//insere uma nova pergunta na arvore binaria
-void BinaryTree::insert(std::string info) {
-    if(root == nullptr) {
-        root = new NodeTree();
-        root->question = info;
-    } else {
-        NodeTree* current = root;
-        while(true) {
-            if(info < current->question) {
-                if(current->left == nullptr) {
-                    current->left = new NodeTree();
-                    current->left->question = info;
-                    break;
-                } else {
-                    current = current->left;
-                }
-            } else if(info > current->question) {
-                if(current->right == nullptr) {
-                    current->right = new NodeTree();
-                    current->right->question = info;
-                    break;
-                } else {
-                    current = current->right;
-                }
-            } else {
-                break;
-            }
-        }
-    }
+NodeTree* BinaryTree::build_genre_nodes(Node<Genre>* current) {
+    if (current == nullptr) return nullptr;
+
+    NodeTree* node = new NodeTree();
+    
+    // Cria a pergunta de gênero
+    node->question = new Question(current->info, true);
+    
+    // Caminho YES: Aprofunda nos subgêneros deste gênero
+    node->yes = build_subgenre_nodes(current->info.get_subgenres().get_head());
+    
+    // Caminho NO: Vai para o próximo gênero da lista principal
+    node->no = build_genre_nodes(current->next);
+
+    return node;
 }
 
-void BinaryTree::answer() {
-    // Implement the logic to select an answer for the question
-    // and run the priority ordering code, then move to the next node in the tree.
+NodeTree* BinaryTree::build_subgenre_nodes(Node<std::string>* currentSub, int cont_priority;) {
+    //recebe o ponteiro pra cabeça da lista de subgeneros
+    //inicia pergunta com a o subgenero atual -> question só recebe como parametro um string subgenero
+    //o contador: ele conta 
+    //recebe a lista de prioridade atual e um contador com o numero do indice do subgenero da lista de subgeneros que 
+    //está sendo comparado com a lista de prioridades
+    if(cont_priority == )
+    
+    if (currentSub == nullptr) return nullptr;
 
+    NodeTree* node = new NodeTree();
+    
+    // Cria a pergunta de subgênero
+    // Nota: você pode precisar de um construtor que aceite apenas string/subgênero
+    node->question = new Question(currentSub->info, false); 
+    
+    // O próximo subgênero continua a lista de perguntas
+    // Em uma lista de subgêneros, o 'no' ou 'yes' pode seguir a lógica de priorização
+    node->yes = build_subgenre_nodes(currentSub->next); 
+    node->no = build_subgenre_nodes(currentSub->next);
+
+    return node;
 }
 
-void BinaryTree::priority_order() {
-    // Implement the logic to reorder the subgenres_priority vector based on the answers given.
-}
+//querendo ou não a arvore precisa ser construida de acordo com o vetor prioridade né ?
