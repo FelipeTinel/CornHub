@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "services/interaction_service.hpp"
+#include "containers/node.hpp"
 
 InteractionService::InteractionService(AuthService& auth, DoublyLinkedList<Comment>& comments): 
     
@@ -36,6 +37,18 @@ bool InteractionService::rate_content(Content & content, float new_note) {
         content.add_rating(new_note); 
         return true;
 
+    }
+
+    return false;
+}
+
+bool InteractionService::has_rated(int user_id, int content_id) const {
+
+    Node<RatedPair> * current = rated_head;
+
+    while (current != nullptr) {
+        if (current->info.user_id == user_id && current->info.content_id == content_id) return true;
+        current = current->next;
     }
 
     return false;
