@@ -12,11 +12,14 @@
 #include "services/interaction_service.hpp"
 #include "services/admin_service.hpp"
 #include "containers/doubly_linked_list.hpp"
+#include "containers/binary_tree.hpp"
 #include "ui/ansi.hpp"
 
 enum class ConsoleScreen {
     PROFILE_CHOOSE,
     LOGIN,
+    QUESTIONARY,
+    RECOMMENDATIONS,
     USER_DASHBOARD,
     CONTENT_DETAIL,
     ADMIN_DASHBOARD,
@@ -27,8 +30,7 @@ class Console {
 
     private:
 
-        // Quantos itens sao mostrados por pagina nas listagens de catalogo.
-        static const int PAGE_SIZE = 8;
+        static const int PAGE_SIZE = 5;
 
         ConsoleScreen actual_screen;
 
@@ -40,12 +42,15 @@ class Console {
 
         Content * selected_content;
 
-        // Pagina atual de cada listagem (uma para o usuario, outra para o admin,
-        // ja que cada uma pode estar em uma pagina diferente).
+        BinaryTree genre_tree;
+        NodeTree * current_tree_node;
+        Genre::Value chosen_genre;
+        DoublyLinkedList<Content> recommended;
+
         int user_page;
         int admin_page;
 
-        const char * genre_to_string(Genre g);
+        const char * genre_to_string(Genre::Value g);
         const char * type_to_string(Type t);
         const char * rating_color(float rating);
 
@@ -59,6 +64,9 @@ class Console {
 
         void render_profile_choose();
         void render_login();
+        void render_questionary();
+        void render_recommendations();
+        void build_recommendations();
         void render_user_dashboard();
         void render_content_detail();
         void render_admin_dashboard();
@@ -67,7 +75,8 @@ class Console {
     public:
 
         Console(AuthService & auth, InteractionService & interaction, AdminService & content_admin,
-                DoublyLinkedList<Content> & contents, DoublyLinkedList<Comment> & comments);
+                DoublyLinkedList<Content> & contents, DoublyLinkedList<Comment> & comments,
+                DoublyLinkedList<Genre> & genres);
 
         void run();
 

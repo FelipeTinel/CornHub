@@ -4,29 +4,33 @@
 #include "services/content_manager.hpp"
 #include "services/user_manager.hpp"
 #include "services/comment_manager.hpp"
+#include "services/genre_manager.hpp"
 #include "containers/doubly_linked_list.hpp"
 #include "services/admin_service.hpp"
 #include "core/user.hpp"
 #include "core/content.hpp"
 #include "core/comment.hpp"
-#include "core/type.hpp"
 #include "core/genre.hpp"
+#include "core/type.hpp"
 
 int main() {
 
     DoublyLinkedList<User> users;
     DoublyLinkedList<Content> contents;
     DoublyLinkedList<Comment> comments;
+    DoublyLinkedList<Genre> genres;
 
     // Arquivos persistentes reais do projeto (pasta data/), diferente dos
     // arquivos de teste usados em tests/test_ui.cpp.
     UserManager user_manager{"../data/users_data.txt"};
     ContentManager content_manager{"../data/contents_data.txt"};
     CommentManager comment_manager{"../data/comments_data.txt"};
+    GenreManager genre_manager{"../data/genres_data.txt"};
 
     user_manager.load_data(users);
     content_manager.load_data(contents);
     comment_manager.load_data(comments);
+    genre_manager.load_data(genres);
 
     if (contents.get_head() == nullptr) {
 
@@ -41,12 +45,13 @@ int main() {
     InteractionService interaction(auth, comments);
     AdminService content_admin(contents);
 
-    Console console(auth, interaction, content_admin, contents, comments);
+    Console console(auth, interaction, content_admin, contents, comments, genres);
     console.run();
 
     content_manager.save_data(contents);
     comment_manager.save_data(comments);
     user_manager.save_data(users);
+    genre_manager.save_data(genres);
 
     return 0;
 }

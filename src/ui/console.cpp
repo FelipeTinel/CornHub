@@ -8,15 +8,20 @@
 #include "containers/node.hpp"
 
 Console::Console(AuthService & auth, InteractionService & interaction, AdminService & content_admin,
-                  DoublyLinkedList<Content> & contents, DoublyLinkedList<Comment> & comments)
+                  DoublyLinkedList<Content> & contents, DoublyLinkedList<Comment> & comments,
+                  DoublyLinkedList<Genre> & genres)
     : actual_screen(ConsoleScreen::PROFILE_CHOOSE),
       auth_service(auth), interaction_service(interaction), content_admin_service(content_admin),
       contents(contents), comments(comments),
       selected_content(nullptr),
+      current_tree_node(nullptr),
+      chosen_genre(static_cast<Genre::Value>(0)),
       user_page(0), admin_page(0)
-{}
+{
+    genre_tree.build_tree(genres);
+}
 
-const char * Console::genre_to_string(Genre g) {
+const char * Console::genre_to_string(Genre::Value g) {
     switch (g) {
         case Genre::ACTION:           return "Acao";
         case Genre::COMEDY:           return "Comedia";
@@ -25,6 +30,7 @@ const char * Console::genre_to_string(Genre g) {
         case Genre::SUSPENSE:         return "Suspense";
         case Genre::DRAMA:            return "Drama";
         case Genre::SCIENCE_FICTION:  return "Ficcao Cientifica";
+        case Genre::SLICE_OF_LIFE:    return "Slice of Life";
     }
     return "Desconhecido";
 }
@@ -40,8 +46,6 @@ const char * Console::type_to_string(Type t) {
     return "Desconhecido";
 }
 
-// Escolhe uma cor pra nota de acordo com o valor, so pra deixar a listagem
-// mais facil de ler rapidamente.
 const char * Console::rating_color(float rating) {
     if (rating >= 4.0f) return Ansi::GREEN.c_str();
     if (rating >= 2.5f) return Ansi::YELLOW.c_str();
@@ -136,7 +140,6 @@ int Console::count_contents() const {
 }
 
 // Anda pela lista encadeada ate o primeiro item da pagina pedida.
-// Como a lista nao tem acesso direto por indice, precisa percorrer no-a-no.
 Node<Content> * Console::get_page_start(int page) const {
 
     Node<Content> * node = contents.get_head();
@@ -149,8 +152,7 @@ Node<Content> * Console::get_page_start(int page) const {
     return node;
 }
 
-// Imprime uma linha formatada com as informacoes de um conteudo, usada tanto
-// na home do usuario quanto no painel do admin.
+// Imprime uma linha formatada com as informacoes de um conteudo.
 void Console::print_content_line(const Content & content) {
 
     std::cout << "  " << Ansi::CYAN << "[" << content.get_id() << "]" << Ansi::RESET
@@ -199,11 +201,103 @@ void Console::render_login() {
 
     if (logged_in) {
         Ansi::print_success("\nLogin realizado com sucesso!");
-        actual_screen = ConsoleScreen::USER_DASHBOARD;
+        actual_screen = ConsoleScreen::QUESTIONARY;
     } else {
         Ansi::print_error("\nSenha incorreta para esse usuario.");
         actual_screen = ConsoleScreen::PROFILE_CHOOSE;
     }
+}
+
+void Console::render_questionary() {
+
+    if (genre_tree.get_root() == nullptr) {
+        // nao ha generos cadastrados, pula direto pro catalogo
+        actual_screen = ConsoleScreen::USER_DASHBOARD;
+        return;
+    }
+
+    if (current_tree_node == nullptr) current_tree_node = genre_tree.get_root();
+
+    if (current_tree_node->question == nullptr) {
+        // chegamos numa folha: monta as recomendacoes e segue
+        build_recommendations();
+        current_tree_node = nullptr;
+        actual_screen = ConsoleScreen::RECOMMENDATIONS;
+        return;
+    }
+
+    Ansi::clear_screen();
+    Ansi::print_title("Questionario de Recomendacao");
+    std::cout << current_tree_node->question->get_question() << "\n";
+
+    Ansi::print_menu_option("1", "Sim");
+    Ansi::print_menu_option("2", "Nao");
+
+    int option = read_int("\nEscolha: ");
+
+    if (option == 1) {
+        if (current_tree_node->question->is_genre()) {
+            chosen_genre = current_tree_node->question->get_genre().get_value();
+        }
+        current_tree_node = genre_tree.navigate_yes(current_tree_node);
+    } else if (option == 2) {
+        current_tree_node = genre_tree.navigate_no(current_tree_node);
+    } else {
+        Ansi::print_error("Opcao invalida.");
+    }
+}
+
+void Console::build_recommendations() {
+
+    recommended = DoublyLinkedList<Content>(); // limpa recomendacoes anteriores
+
+    Node<Content> * node = contents.get_head();
+    while (node != nullptr) {
+        if (chosen_genre != 0 && node->info.get_genre() == chosen_genre) {
+            recommended.insert_sorted(node->info, content_rating_desc);
+        }
+        node = node->next;
+    }
+
+    // fallback: se nada bateu com o genero escolhido, mostra tudo ordenado por avaliacao
+    if (recommended.get_head() == nullptr) {
+        node = contents.get_head();
+        while (node != nullptr) {
+            recommended.insert_sorted(node->info, content_rating_desc);
+            node = node->next;
+        }
+    }
+}
+
+void Console::render_recommendations() {
+
+    Ansi::clear_screen();
+    Ansi::print_title("Recomendados para voce");
+
+    Node<Content> * node = recommended.get_head();
+    if (node == nullptr) Ansi::print_info("(nenhuma recomendacao encontrada)");
+
+    while (node != nullptr) {
+        print_content_line(node->info);
+        node = node->next;
+    }
+
+    int choice = read_int("\nDigite o ID do conteudo para assistir, ou 0 para ir ao catalogo completo: ");
+
+    if (choice == 0) {
+        actual_screen = ConsoleScreen::USER_DASHBOARD;
+        return;
+    }
+
+    Content * content = contents.search(choice);
+    if (content == nullptr) {
+        Ansi::print_error("Conteudo nao encontrado.");
+        return;
+    }
+
+    selected_content = content;
+    interaction_service.watch_content(*content);
+    actual_screen = ConsoleScreen::CONTENT_DETAIL;
 }
 
 void Console::render_user_dashboard() {
@@ -420,10 +514,10 @@ void Console::render_admin_formulary(bool editing) {
         type_option = read_int("Opcao invalida, escolha o tipo (0 a 4): ");
     }
 
-    std::cout << Ansi::DIM << "Genero: 0-Acao 1-Comedia 2-Romance 3-Terror 4-Suspense 5-Drama 6-Ficcao Cientifica" << Ansi::RESET << "\n";
+    std::cout << Ansi::DIM << "Genero: 0-Acao 1-Comedia 2-Romance 3-Terror 4-Suspense 5-Drama 6-Ficcao Cientifica 7-Slice of Life" << Ansi::RESET << "\n";
     int genre_option = read_int("Escolha o genero: ");
-    while (genre_option < 0 || genre_option > 6) {
-        genre_option = read_int("Opcao invalida, escolha o genero (0 a 6): ");
+    while (genre_option < 0 || genre_option > 7) {
+        genre_option = read_int("Opcao invalida, escolha o genero (0 a 7): ");
     }
 
     int year = read_int("Ano: ");
@@ -435,7 +529,7 @@ void Console::render_admin_formulary(bool editing) {
     float rating = read_float("Avaliacao inicial (0.0 a 5.0): ");
 
     Type type = static_cast<Type>(type_option);
-    Genre genre = static_cast<Genre>(genre_option);
+    Genre::Value genre = static_cast<Genre::Value>(genre_option + 1);
 
     if (!editing) {
         content_admin_service.add_content(titulo, type, genre, year, views, rating);
@@ -455,11 +549,13 @@ void Console::run() {
 
         switch (actual_screen) {
 
-            case ConsoleScreen::PROFILE_CHOOSE:  render_profile_choose();  break;
-            case ConsoleScreen::LOGIN:            render_login();          break;
-            case ConsoleScreen::USER_DASHBOARD:  render_user_dashboard();  break;
-            case ConsoleScreen::CONTENT_DETAIL:  render_content_detail();  break;
-            case ConsoleScreen::ADMIN_DASHBOARD: render_admin_dashboard(); break;
+            case ConsoleScreen::PROFILE_CHOOSE:   render_profile_choose();   break;
+            case ConsoleScreen::LOGIN:             render_login();            break;
+            case ConsoleScreen::QUESTIONARY:       render_questionary();      break;
+            case ConsoleScreen::RECOMMENDATIONS:   render_recommendations();  break;
+            case ConsoleScreen::USER_DASHBOARD:   render_user_dashboard();   break;
+            case ConsoleScreen::CONTENT_DETAIL:   render_content_detail();   break;
+            case ConsoleScreen::ADMIN_DASHBOARD:  render_admin_dashboard();  break;
             case ConsoleScreen::EXIT: break;
         }
     }
