@@ -21,26 +21,7 @@ InteractionService::~InteractionService() {
     }
 }
 
-void InteractionService::watch_content(Content& content) {
-
-    content.add_views(1);
-
-    // Procura se ja existe uma entrada pra esse conteudo no historico.
-    WatchedEntry * existing = watch_history.search(content.get_id());
-
-    if (existing != nullptr) {
-
-        //Se ja existe: precisamos tirar da lista, incrementar e reinserir ordenado, porque a posicao dele pode ter mudado.
-        WatchedEntry updated(*existing);
-        updated.add_watch();
-        watch_history.pop(content.get_id());
-        watch_history.insert_sorted(updated, watched_desc);
-    } else {
-        // Primeira vez que esse conteudo e assistido.
-        WatchedEntry new_entry(content.get_id(), content.get_title(), content.get_type(), content.get_genre(), 1);
-        watch_history.insert_sorted(new_entry, watched_desc);
-    }
-}
+void InteractionService::watch_content(Content& content) { content.add_views(1); }
 
 bool InteractionService::add_comment_to_content(Content& content, const std::string& text) {
 
