@@ -19,6 +19,9 @@ class DoublyLinkedList {
         ~ DoublyLinkedList ();
     
         void insert (const T &info);
+        void insert_end (const T &info);
+        void insert_sorted (const T &info, bool (*comes_before)(const T&, const T&));
+
         T pop (int id);
         T * search (int id) const;
         int size() const;
@@ -75,6 +78,65 @@ void DoublyLinkedList<T>::insert(const T &info) {
 
     head = new_node;
 
+}
+
+template <typename T>
+void DoublyLinkedList<T>::insert_end(const T &info) {
+
+    Node<T> * new_node = new Node<T>(info);
+
+    new_node->next = nullptr;
+
+    if (tail == nullptr) {
+        new_node->previous = nullptr;
+        head = new_node;
+    } else {
+        new_node->previous = tail;
+        tail->next = new_node;
+    }
+
+    tail = new_node;
+
+}
+
+//Lista de Conteúdos recomendados
+template <typename T>
+void DoublyLinkedList<T>::insert_sorted(const T &info, bool (*comes_before)(const T&, const T&)) {
+
+    Node<T> * new_node = new Node<T>(info);
+
+    if (head == nullptr) { //SE A LISTA ESTIVER VAZIA
+        new_node->previous = nullptr;
+        new_node->next = nullptr;
+        head = tail = new_node;
+        return;
+    }
+
+    Node<T> * current = head;
+    while (current != nullptr && comes_before(current->info, info)) {
+        current = current->next;
+    }
+
+    if (current == nullptr) {
+        //vai pro final da lista
+        new_node->previous = tail;
+        new_node->next = nullptr;
+        tail->next = new_node;
+        tail = new_node;
+    } else if (current == head) {
+        //vai pro início da lista
+        new_node->next = head;
+        new_node->previous = nullptr;
+        head->previous = new_node;
+        head = new_node;
+    } else {
+        //vai no meio
+        Node<T> * prev = current->previous;
+        new_node->previous = prev;
+        new_node->next = current;
+        prev->next = new_node;
+        current->previous = new_node;
+    }
 }
 
 template <typename T>

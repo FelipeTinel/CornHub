@@ -25,6 +25,8 @@ class Question {
         std::string get_question() const;
         Genre get_genre() const;
 
+        bool is_genre() const;
+
         void set_bool(bool is_genre);
         void set_question(std::string question);
         void set_genre(const Genre& g);

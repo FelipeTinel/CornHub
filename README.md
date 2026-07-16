@@ -1,35 +1,34 @@
-# ECV-ENTRETENIMENTO-CERTO-E-VIVO
-Trabalho final de Estruturas de Dados 1 UNEB 2026.1
+# PopcornHUB
 
-# (0_0)
+Sistema de recomendação de conteúdo para streaming, feito em C++ para a disciplina de Estrutura de Dados I (UNEB, 2026.1).
 
-# Como rodar CMakeLists!!!!
+## Funcionalidades
 
-### Cole no aquivo "CMakeLists.txt" o seguinte código:
+- Cadastro, edição e remoção de conteúdos (Admin)
+- Login/cadastro de usuário
+- Questionário de recomendação baseado em uma **árvore binária de decisão** (gênero → subgênero)
+- Lista de recomendados ordenada por avaliação, respeitando a prioridade de subgênero
+- Comentários e avaliação por estrelas
+- Histórico de mais assistidos (lista duplamente encadeada)
+- Estatísticas do sistema (tipo/gênero mais e menos recomendado, títulos mais assistidos, etc.)
+- Persistência em arquivos de texto (`data/`)
 
-</br>
+## Estruturas de dados utilizadas
 
-```bash
-add_executable(
+- **Árvore binária** (`BinaryTree` / `NodeTree`) — navegação do questionário de recomendação
+- **Lista duplamente encadeada** (`DoublyLinkedList<T>`) — armazena conteúdos, usuários, comentários, gêneros e histórico
 
-    nome_executavel
+## Como rodar
 
-    arquivo1.cpp
-    arquivo2.cpp
-    etc.cpp
-
-)
-```
-
-</br>
-
-### Depois disso, rode no seu terminal as seguintes linhas de código:
+Requer `g++` (C++17) e `make`.
 
 ```bash
-cd build/
-cmake ..
-cmake --build .
-./nome_executavel
+make        # compila, gera build/ecv_terminal
+make run    # compila (se necessário) e já executa
 ```
 
-### Fim de papo.
+No Windows, usar o terminal MSYS2 (UCRT64/MinGW64) ou qualquer terminal com `g++`/`make` no PATH.
+
+## Os melhores programadores:
+
+Marcelo Líryo, Janderson Blanski e Felipe Tinel.
