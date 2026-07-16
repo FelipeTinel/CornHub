@@ -15,10 +15,14 @@ SRCS = src/main_console.cpp \
        src/services/user_manager.cpp \
        src/services/comment_manager.cpp \
        src/services/content_manager.cpp \
+       src/services/genre_manager.cpp \
        src/core/user.cpp \
        src/core/content.cpp \
-       src/core/comment.cpp
-
+       src/core/comment.cpp \
+       src/core/genre.cpp \
+       src/core/question.cpp \
+       src/containers/binary_tree.cpp
+       
 TARGET = build/ecv_terminal
 
 all: $(TARGET)

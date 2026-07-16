@@ -43,3 +43,7 @@ void Question::set_question(std::string q) {
 void Question::set_genre(const Genre& g) {
     genre = g;
 }
+
+bool Question::is_genre() const {
+    return is_genre_question;
+}
