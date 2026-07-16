@@ -8,9 +8,11 @@
 #include "core/content.hpp"
 #include "core/type.hpp"
 #include "core/genre.hpp"
+#include "core/watched_entry.hpp"
 #include "services/auth_service.hpp"
 #include "services/interaction_service.hpp"
 #include "services/admin_service.hpp"
+#include "services/statistics_service.hpp"
 #include "containers/doubly_linked_list.hpp"
 #include "containers/binary_tree.hpp"
 #include "ui/ansi.hpp"
@@ -23,6 +25,8 @@ enum class ConsoleScreen {
     USER_DASHBOARD,
     CONTENT_DETAIL,
     ADMIN_DASHBOARD,
+    WATCH_HISTORY,
+    STATISTICS,
     EXIT
 };
 
@@ -47,12 +51,15 @@ class Console {
         Genre::Value chosen_genre;
         DoublyLinkedList<Content> recommended;
 
+        StatisticsService statistics;
+
         int user_page;
         int admin_page;
 
         const char * genre_to_string(Genre::Value g);
         const char * type_to_string(Type t);
         const char * rating_color(float rating);
+        void print_watched_entry_line(const WatchedEntry & entry, int position);
 
         int read_int(const std::string & prompt);
         float read_float(const std::string & prompt);
@@ -71,6 +78,8 @@ class Console {
         void render_content_detail();
         void render_admin_dashboard();
         void render_admin_formulary(bool editing);
+        void render_watch_history();
+        void render_statistics();
 
     public:
 

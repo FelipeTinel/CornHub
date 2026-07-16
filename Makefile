@@ -6,6 +6,7 @@ SRCS = src/main_console.cpp \
        src/services/auth_service.cpp \
        src/services/interaction_service.cpp \
        src/services/admin_service.cpp \
+       src/services/statistics_service.cpp \
        src/services/user_manager.cpp \
        src/services/comment_manager.cpp \
        src/services/content_manager.cpp \
@@ -15,6 +16,7 @@ SRCS = src/main_console.cpp \
        src/core/comment.cpp \
        src/core/genre.cpp \
        src/core/question.cpp \
+       src/core/watched_entry.cpp \
        src/containers/binary_tree.cpp
 
 TARGET = build/ecv_terminal
