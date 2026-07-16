@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <iostream>
@@ -14,6 +15,9 @@ class Question {
     public:
         // Construtor para perguntas de Gênero (ex: "Você gosta de Ação?")
         Question(const Genre& g, bool is_genre);
+
+        // Construtor para pergunta de um único Subgênero (ex: "Você gosta de Superhero?")
+        Question(const std::string& sub, bool is_genre);
 
         // Construtor para comparação de Subgêneros (ex: "Você prefere X ou Y?")
         Question(const std::string& sub1, const std::string& sub2, bool is_genre);

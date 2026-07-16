@@ -14,6 +14,7 @@ class BinaryTree {
         NodeTree* root;
         std::string get_element_at(DoublyLinkedList<std::string>& list, int index);
         NodeTree* create_result_node(DoublyLinkedList<std::string>& finalList); // Atualizado para receber a lista
+        void destroy_tree(NodeTree* node); // Libera recursivamente os nos e as Questions alocadas
 
     public:
         BinaryTree();
