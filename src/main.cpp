@@ -18,9 +18,9 @@ int main() {
     DoublyLinkedList<Content> contents;
     DoublyLinkedList<Comment> comments;
 
-    UserManager user_manager{"../tests/data/user_test.txt"};
-    ContentManager content_manager{"../tests/data/content_test.txt"};
-    CommentManager comment_manager{"../tests/data/comment_test.txt"};
+    UserManager user_manager{"../data/users_data.txt"};
+    ContentManager content_manager{"../data/contents_data.txt"};
+    CommentManager comment_manager{"../data/comments_data.txt"};
 
     user_manager.load_data(users);
     content_manager.load_data(contents);

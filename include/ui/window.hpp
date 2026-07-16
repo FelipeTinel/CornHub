@@ -31,6 +31,8 @@ class Window {
         //DoublyLinkedList<Content> recommended_mock; // lista temporária pra testar ordenação, sumir quando a árvore estiver pronta
 
         Content * selected_content;
+        
+        bool login_error;
 
         char buffer_comentario[256];            
         float buffer_avaliacao;   
