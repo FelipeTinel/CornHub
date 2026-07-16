@@ -309,8 +309,8 @@ void Console::build_recommendations() {
         node = node->next;
     }
 
-    // fallback: se nada bateu com o genero escolhido, mostra tudo (ainda
-    // respeitando a prioridade de subgenero, se houver) ordenado por avaliacao
+    //fallback: se nada bateu com o genero escolhido, mostra tudo (ainda
+    //respeitando a prioridade de subgenero, se houver) ordenado por avaliacao
     if (recommended.get_head() == nullptr) {
         node = contents.get_head();
         while (node != nullptr) {
@@ -331,12 +331,22 @@ void Console::render_recommendations() {
     Ansi::clear_screen();
     Ansi::print_title("Recomendados para voce");
 
+    const int MAX_SHOWN = 10;
+
     Node<Content> * node = recommended.get_head();
     if (node == nullptr) Ansi::print_info("(nenhuma recomendacao encontrada)");
 
-    while (node != nullptr) {
+    int shown = 0;
+    while (node != nullptr && shown < MAX_SHOWN) {
         print_content_line(node->info);
         node = node->next;
+        shown++;
+    }
+
+    int total_matched = recommended.size();
+    if (total_matched > shown) {
+        std::cout << Ansi::DIM << "\n(mostrando os " << shown << " melhores de "
+                   << total_matched << " encontrados)" << Ansi::RESET << "\n";
     }
 
     int choice = read_int("\nDigite o ID do conteudo para assistir, ou 0 para ir ao catalogo completo: ");
