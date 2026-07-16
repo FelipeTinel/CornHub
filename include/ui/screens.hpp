@@ -9,5 +9,6 @@ enum class Screen {
     USER_DASHBOARD,   
     CONTENT_DETAIL, 
     ADMIN_DASHBOARD,  
-    ADMIN_FORMULARY 
+    ADMIN_FORMULARY,
+    RECOMMENDATIONS 
 };

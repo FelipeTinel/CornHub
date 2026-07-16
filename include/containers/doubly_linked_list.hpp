@@ -45,12 +45,13 @@ void DoublyLinkedList<T>::insert(const T &info) {
 
 }
 
+//Lista de Conteúdos recomendados
 template <typename T>
 void DoublyLinkedList<T>::insert_sorted(const T &info, bool (*comes_before)(const T&, const T&)) {
 
     Node<T> * new_node = new Node<T>(info);
 
-    if (head == nullptr) { // SE A LISTA ESTIVER VAZIA
+    if (head == nullptr) { //SE A LISTA ESTIVER VAZIA
         new_node->previous = nullptr;
         new_node->next = nullptr;
         head = tail = new_node;

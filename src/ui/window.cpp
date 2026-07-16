@@ -28,6 +28,15 @@ Window::Window(AuthService & auth, InteractionService & interaction, AdminServic
     buffer_views_admin = 0;
     buffer_rating_admin = 0.0f;
 
+    // --- MOCK temporário: sai quando a árvore de decisão estiver pronta ---
+    Content mock1("Interestelar (mock)", Type::MOVIE, Genre::SCIENCE_FICTION, 2014, 100, 4.8f);
+    Content mock2("Comédia Qualquer (mock)", Type::MOVIE, Genre::COMEDY, 2020, 50, 3.2f);
+    Content mock3("Serie Mock", Type::SERIES, Genre::DRAMA, 2019, 200, 4.9f);
+
+    recommended_mock.insert_sorted(mock1, content_rating_desc);
+    recommended_mock.insert_sorted(mock2, content_rating_desc);
+    recommended_mock.insert_sorted(mock3, content_rating_desc);
+
     initGLFW();
     initImGui();
 }
@@ -157,6 +166,10 @@ void Window::render_user_dashboard() {
         }
 
         ImGui::EndListBox();
+    }
+
+    if (ImGui::Button("Ver Recomendados (mock)")) {
+        actual_screen = Screen::RECOMMENDATIONS;
     }
 
     if (ImGui::Button("Logout")) {
@@ -326,6 +339,37 @@ void Window::render_content_detail() {
         ImGui::End();
 }
 
+void Window::render_recommendations() {
+
+    ImGui::Begin("PopcornHUB - Recomendados (ordenado por avaliacao)");
+    ImGui::Text("Lista de recomendados (MOCK - sera substituida pela arvore):");
+
+    if (ImGui::BeginListBox("##recomendados", ImVec2(-1, 150))) {
+
+        Node<Content> * node = recommended_mock.get_head();
+
+        while (node != nullptr) {
+
+            std::string label = node->info.get_title() + " - nota: " + std::to_string(node->info.get_rating());
+
+            if (ImGui::Selectable(label.c_str())) {
+                selected_content = &node->info;
+                actual_screen = Screen::CONTENT_DETAIL;
+            }
+
+            node = node->next;
+        }
+
+        ImGui::EndListBox();
+    }
+
+    if (ImGui::Button("Voltar")) {
+        actual_screen = Screen::USER_DASHBOARD;
+    }
+
+    ImGui::End();
+}
+
 void Window::render_admin_formulary() {
 
     static const char * type_options[] = { "Filme", "Serie", "Documentario", "Anime", "Desenho" };
@@ -391,6 +435,7 @@ void Window::run() {
             case Screen::CONTENT_DETAIL:  render_content_detail();  break;
             case Screen::ADMIN_DASHBOARD: render_admin_dashboard(); break;
             case Screen::ADMIN_FORMULARY: render_admin_formulary(); break;
+            case Screen::RECOMMENDATIONS: render_recommendations(); break;
         }
 
         ImGui::Render();

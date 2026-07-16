@@ -28,6 +28,7 @@ class Window {
         AdminService & content_admin_service;
         DoublyLinkedList<Content> & contents;
         DoublyLinkedList<Comment> & comments; 
+        //DoublyLinkedList<Content> recommended_mock; // lista temporária pra testar ordenação, sumir quando a árvore estiver pronta
 
         Content * selected_content;
 
@@ -57,6 +58,7 @@ class Window {
         void render_content_detail();
         void render_admin_dashboard();
         void render_admin_formulary();
+        void render_recommendations();
 
     public:
 
