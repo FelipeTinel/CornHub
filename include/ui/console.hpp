@@ -30,6 +30,8 @@ class Console {
 
     private:
 
+        static const int PAGE_SIZE = 5;
+
         ConsoleScreen actual_screen;
 
         AuthService & auth_service;
@@ -45,12 +47,20 @@ class Console {
         Genre::Value chosen_genre;
         DoublyLinkedList<Content> recommended;
 
+        int user_page;
+        int admin_page;
+
         const char * genre_to_string(Genre::Value g);
         const char * type_to_string(Type t);
+        const char * rating_color(float rating);
 
         int read_int(const std::string & prompt);
         float read_float(const std::string & prompt);
         std::string read_line(const std::string & prompt);
+
+        int count_contents() const;
+        Node<Content> * get_page_start(int page) const;
+        void print_content_line(const Content & content);
 
         void render_profile_choose();
         void render_login();
