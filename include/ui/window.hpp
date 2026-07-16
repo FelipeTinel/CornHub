@@ -46,7 +46,7 @@ class Window {
         int buffer_views_admin;
         float buffer_rating_admin;
 
-        const char * genre_to_string(Genre g);
+        const char * genre_to_string(Genre::Value g);
         const char * type_to_string(Type t);
 
         bool initGLFW();
