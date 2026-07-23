@@ -20,24 +20,27 @@ SRCS = src/main_console.cpp \
        src/core/watched_entry.cpp \
        src/containers/binary_tree.cpp
 
-TARGET = build/ecv_terminal
+TARGET_DIR = build
+TARGET = $(TARGET_DIR)/ecv_terminal
 
 ifeq ($(OS),Windows_NT)
-    MKDIR = if not exist build mkdir build
     RUN_TARGET = ecv_terminal.exe
+    RM_CMD = if exist build rmdir /s /q build
 else
-    MKDIR = mkdir -p build
     RUN_TARGET = ./ecv_terminal
+    RM_CMD = rm -rf $(TARGET_DIR)
 endif
+
+.PHONY: all run clean
 
 all: $(TARGET)
 
 $(TARGET): $(SRCS)
-	@$(MKDIR)
+	@mkdir -p $(TARGET_DIR)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRCS)
 
 run: all
-	cd build && $(RUN_TARGET)
+	cd $(TARGET_DIR) && $(RUN_TARGET)
 
 clean:
-	rm -f $(TARGET)
+	$(RM_CMD)
